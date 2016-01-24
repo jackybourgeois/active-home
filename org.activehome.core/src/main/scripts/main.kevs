@@ -1,0 +1,9 @@
+add ah : JavaNode/5.2.9
+set ah.log = "DEBUG"
+
+add ah.broadcaster : org.activehome.core.server.WSBroadcaster
+add ah.activehome : org.activehome.core.ActiveHome
+
+add sync : WSGroup
+attach ah sync
+set sync.master = "ah"
