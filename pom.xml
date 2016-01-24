@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+    <groupId>org.activehome</groupId>
+    <artifactId>org.activehome</artifactId>
+    <version>0.0.1-SNAPSHOT</version>
+    <packaging>pom</packaging>
+    <name>Active Home</name>
+    <description>Active Home</description>
+    <url>https://active-home.org</url>
+
+    <organization>
+        <name>Active Home Project</name>
+        <url>http://active-home.org</url>
+    </organization>
+
+    <scm>
+        <connection>scm:git:git@github.com:jackybourgeois/activehome.git</connection>
+        <developerConnection>scm:git:git@github.com:jackybourgeois/activehome.git</developerConnection>
+        <url>http://github.com/jackybourgeois/activehome.git</url>
+        <tag>HEAD</tag>
+    </scm>
+
+    <licenses>
+        <license>
+            <name>
+                GNU General Public License (GPL) version 3.0
+            </name>
+            <url>http://www.gnu.org/licenses/gpl.html</url>
+        </license>
+    </licenses>
+
+    <developers>
+        <developer>
+            <name>Jacky Bourgeois</name>
+            <email>jacky.bourgeois@gmail.com</email>
+            <id>jacky.bourgeois</id>
+            <roles>
+                <role>admin</role>
+                <role>developer</role>
+            </roles>
+            <timezone>Europe/London</timezone>
+        </developer>
+    </developers>
+
+    <modules>
+        <module>org.activehome.api</module>
+        <module>org.activehome.tools</module>
+        <module>org.activehome.com</module>
+        <module>org.activehome.context</module>
+        <module>org.activehome.user</module>
+        <module>org.activehome.service</module>
+        <module>org.activehome.io</module>
+        <module>org.activehome.translator</module>
+        <module>org.activehome.time</module>
+        <module>org.activehome.core</module>
+        <module>org.activehome.test</module>
+        <module>org.activehome.mysql</module>
+        <module>org.activehome.predictor</module>
+        <module>org.activehome.svg</module>
+        <module>org.activehome.evaluator</module>
+    </modules>
+
+    <properties>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <kevoree.version>5.3.1</kevoree.version>
+        <kmf.version>4.26.0</kmf.version>
+        <junit.version>4.11</junit.version>
+        <jdk.target>1.8</jdk.target>
+        <kevoree.log.version>1</kevoree.log.version>
+        <kevoree.kcl.version>19</kevoree.kcl.version>
+    </properties>
+
+    <dependencies>
+        <dependency>
+            <groupId>org.kevoree</groupId>
+            <artifactId>org.kevoree.annotation.api</artifactId>
+            <version>${kevoree.version}</version>
+        </dependency>
+        <dependency>
+            <groupId>org.kevoree.log</groupId>
+            <artifactId>org.kevoree.log</artifactId>
+            <version>1</version>
+        </dependency>
+        <dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.8.1</version>
+            <scope>test</scope>
+        </dependency>
+    </dependencies>
+
+    <distributionManagement>
+        <repository>
+            <id>active-home-internal</id>
+            <url>sftp://active-home.org/maven/repo/internal</url>
+        </repository>
+        <snapshotRepository>
+            <id>active-home-snapshots</id>
+            <url>sftp://active-home.org/maven/repo/snapshots</url>
+        </snapshotRepository>
+    </distributionManagement>
+
+    <repositories>
+        <repository>
+            <id>kevoree-oss</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </repository>
+        <repository>
+            <id>active-home-snapshots</id>
+            <url>http://active-home.org:8080/maven/snapshots/</url>
+        </repository>
+        <repository>
+            <id>active-home-internal</id>
+            <url>http://active-home.org:8080/maven/internal/</url>
+        </repository>
+    </repositories>
+
+    <pluginRepositories>
+        <pluginRepository>
+            <id>plugin.kevoree-oss</id>
+            <url>https://oss.sonatype.org/content/groups/public/</url>
+        </pluginRepository>
+    </pluginRepositories>
+
+
+    <build>
+
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-source-plugin</artifactId>
+                <version>2.1.2</version>
+                <executions>
+                    <execution>
+                        <id>attach-sources</id>
+                        <goals>
+                            <goal>jar</goal>
+                        </goals>
+                    </execution>
+                </executions>
+            </plugin>
+            <plugin>
+                <groupId>org.codehaus.mojo</groupId>
+                <artifactId>license-maven-plugin</artifactId>
+                <version>1.4</version>
+                <configuration>
+                    <verbose>false</verbose>
+                    <addSvnKeyWords>true</addSvnKeyWords>
+                </configuration>
+                <executions>
+                    <execution>
+                        <id>first</id>
+                        <goals>
+                            <goal>update-file-header</goal>
+                        </goals>
+                        <phase>process-sources</phase>
+                        <configuration>
+                            <licenseName>gpl_v2</licenseName>
+                            <organizationName>org.activehome</organizationName>
+                            <inceptionYear>2016</inceptionYear>
+                            <includes>
+                                <include>*.java</include>
+                            </includes>
+                        </configuration>
+                    </execution>
+                </executions>
+            </plugin>
+        </plugins>
+
+        <extensions>
+            <!-- Enabling the use of SSH -->
+            <extension>
+                <groupId>org.apache.maven.wagon</groupId>
+                <artifactId>wagon-ssh</artifactId>
+                <version>2.7</version>
+            </extension>
+        </extensions>
+    </build>
+
+</project>
