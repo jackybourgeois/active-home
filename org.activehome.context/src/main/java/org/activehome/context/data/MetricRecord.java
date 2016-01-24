@@ -1,0 +1,465 @@
+package org.activehome.context.data;
+
+import com.eclipsesource.json.JsonArray;
+import com.eclipsesource.json.JsonObject;
+import com.eclipsesource.json.JsonValue;
+
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.LinkedList;
+
+/**
+ * The MetricRecord details the value of a metric over a given periods.
+ * It is composed of Records
+ *
+ * @author Jacky Bourgeois
+ * @version %I%, %G%
+ */
+public class MetricRecord {
+
+    public static final String DEFAULT_MAIN_VERSION = "0";
+
+    /**
+     * The metric id.
+     */
+    private final String metricId;
+    /**
+     * The period's start time in milliseconds.
+     */
+    private long startTime;
+    /**
+     * The duration of the period in milliseconds.
+     */
+    private long timeFrame;
+    /**
+     * The status indicating if the MetricRecord is partial (still recording)
+     * or complete (either past values or predicted values).
+     */
+    private boolean recording;
+    /**
+     * The list of Records.
+     */
+    private final HashMap<String, LinkedList<Record>> records;
+
+    private String mainVersion;
+
+    /**
+     * @param theMetricId  The metric id
+     * @param theTimeFrame The duration of the record
+     */
+    public MetricRecord(final String theMetricId,
+                        final long theTimeFrame) {
+        metricId = theMetricId;
+        timeFrame = theTimeFrame;
+        recording = true;
+        records = new HashMap<>();
+    }
+
+    public MetricRecord(final String metricId,
+                        final long timeFrame,
+                        final String version,
+                        final long startTime,
+                        final String initialValue,
+                        final double confidence) {
+        this(metricId, timeFrame);
+        addRecord(startTime, initialValue, version, confidence);
+    }
+
+    public MetricRecord(final String metricId,
+                        final long timeFrame,
+                        final long startTime,
+                        final String initialValue,
+                        final double confidence) {
+        this(metricId, timeFrame);
+        addRecord(startTime, initialValue, DEFAULT_MAIN_VERSION, confidence);
+    }
+
+    /**
+     * Creates a minimal MetricRecord with a metric id only, no time frame.
+     *
+     * @param theMetricId The metric Id
+     */
+    public MetricRecord(final String theMetricId) {
+        this(theMetricId, -1);
+    }
+
+    /**
+     * Creates a copy of a MetricRecord and shifts it in time.
+     *
+     * @param newStartTime The new start time
+     * @param metricRecord The MetricRecord to copy
+     */
+    public MetricRecord(final long newStartTime,
+                        final MetricRecord metricRecord) {
+        startTime = newStartTime;
+        metricId = metricRecord.getMetricId();
+        timeFrame = metricRecord.getTimeFrame();
+        records = metricRecord.getAllVersionRecords();
+        mainVersion = metricRecord.getMainVersion();
+        recording = metricRecord.isRecording();
+    }
+
+    /**
+     * Creates a copy of a MetricRecord for a different metric.
+     *
+     * @param newMetricId  The id of the new metric
+     * @param metricRecord The MetricRecord to copy
+     */
+    public MetricRecord(final String newMetricId,
+                        final MetricRecord metricRecord) {
+        metricId = newMetricId;
+        startTime = metricRecord.getStartTime();
+        timeFrame = metricRecord.getTimeFrame();
+        recording = isRecording();
+        records = getAllVersionRecords();
+    }
+
+    /**
+     * @param json Json that can be map as MetricRecord
+     */
+    public MetricRecord(final JsonObject json) {
+        startTime = json.get("start").asLong();
+        metricId = json.get("metricId").asString();
+        timeFrame = json.get("timeFrame").asLong();
+        recording = json.get("recording").asBoolean();
+        if (json.get("mainVersion") != null) {
+            mainVersion = json.get("mainVersion").asString();
+        }
+
+        records = new HashMap<>();
+        JsonObject jsonVersion = json.get("records").asObject();
+        for (String version : jsonVersion.names()) {
+            records.put(version, new LinkedList<>());
+            for (JsonValue jsonRec : jsonVersion.get(version).asArray()) {
+                if (jsonRec.asObject().get("duration") != null) {
+                    records.get(version).add(new SampledRecord(jsonRec.asObject()));
+                } else {
+                    records.get(version).add(new Record(jsonRec.asObject()));
+                }
+            }
+        }
+    }
+
+    /**
+     * @return The start time
+     */
+    public final long getStartTime() {
+        return startTime;
+    }
+
+    /**
+     * @return The id of the recorded metric
+     */
+    public final String getMetricId() {
+        return metricId;
+    }
+
+    /**
+     * @return The list of records
+     */
+    public final LinkedList<Record> getRecords(final String version) {
+        return records.get(version);
+    }
+
+    public final LinkedList<Record> getRecords() {
+        return getRecords(mainVersion);
+    }
+
+    public final HashMap<String, LinkedList<Record>> getAllVersionRecords() {
+        return records;
+    }
+
+    /**
+     * @return true if the record is partial, still recording
+     */
+    public final boolean isRecording() {
+        return recording;
+    }
+
+    public final void setRecording(final boolean isRecording) {
+        recording = isRecording;
+    }
+
+    /**
+     * @param ts    Time-stamp of the new record, in milliseconds since 1970
+     * @param value The new value
+     */
+    public final void addRecord(final long ts,
+                                final String value,
+                                final String version,
+                                final double confidence) {
+        if (records.size() == 0) {
+            startTime = ts;
+        }
+        if (mainVersion == null) {
+            mainVersion = version;
+        }
+        if (!records.containsKey(version)) {
+            records.put(version, new LinkedList<>());
+        }
+        records.get(version).addLast(new Record(value, ts - startTime, confidence));
+    }
+
+    public final void addRecord(final long ts,
+                                final String value,
+                                final double confidence) {
+        if (mainVersion == null) {
+            mainVersion = DEFAULT_MAIN_VERSION;
+        }
+        addRecord(ts, value, mainVersion, confidence);
+    }
+
+    /**
+     * @param ts       Time-stamp of the new record, in milliseconds since 1970
+     * @param duration Duration of the sample
+     * @param value    The new value
+     */
+    public final void addRecord(final long ts,
+                                final long duration,
+                                final String value,
+                                final String version,
+                                final double confidence) {
+        if (records.size() == 0) {
+            startTime = ts;
+        }
+        if (mainVersion == null) {
+            mainVersion = version;
+        }
+        if (!records.containsKey(version)) {
+            records.put(version, new LinkedList<>());
+        }
+        records.get(version).addLast(new SampledRecord(value, ts - startTime, duration, confidence));
+    }
+
+    public final void addRecord(final long ts,
+                                final long duration,
+                                final String value,
+                                final double confidence) {
+        if (mainVersion == null) {
+            mainVersion = DEFAULT_MAIN_VERSION;
+        }
+        addRecord(ts, duration, value, mainVersion, confidence);
+    }
+
+    /**
+     * @param metricRecord Source of the new records
+     */
+    public final void addAllRecords(final MetricRecord metricRecord) {
+        if (records.size() == 0 && metricRecord.getRecords().size() > 0) {
+            startTime = metricRecord.getRecords().getFirst().getTS();
+        }
+        for (String version : metricRecord.getAllVersionRecords().keySet()) {
+            for (Record record : metricRecord.getRecords(version)) {
+                records.get(version).addLast(new Record(record.getValue(),
+                        record.getTS() + metricRecord.getStartTime() - startTime));
+            }
+        }
+    }
+
+    /**
+     * @return The first Record (start time shifting to the 'new' first record)
+     */
+    public final Record pollFirst(final String version) {
+        Record record = records.get(version).pollFirst();
+        if (records.size() > 0) {
+            startTime += records.get(version).getFirst().getTS();
+            records.get(version).getFirst().setTS(0);
+        }
+        return record;
+    }
+
+    public final Record pollFirst() {
+        return pollFirst(mainVersion);
+    }
+
+    /**
+     * @return The defined timeframe, otherwise the
+     * difference between last time and start time
+     */
+    public final long getTimeFrame() {
+        if (timeFrame != -1) {
+            return timeFrame;
+        }
+        return records.get(mainVersion).getLast().getTS();
+    }
+
+    /**
+     * @return The time-stamp of the last record (milliseconds since 1970)
+     */
+    public final long getlastTS() {
+        return startTime + records.get(mainVersion).getLast().getTS();
+    }
+
+    /**
+     * @return The last recorded value
+     */
+    public final String getLastValue() {
+        if (records.size() > 0) {
+            return records.get(mainVersion).getLast().getValue();
+        }
+        return "";
+    }
+
+    /**
+     * @return The Json as String
+     */
+    @Override
+    public final String toString() {
+        return toJson().toString();
+    }
+
+    /**
+     * Convert the MetricRecord into Json.
+     *
+     * @return the Json
+     */
+    public final JsonObject toJson() {
+        JsonObject json = new JsonObject();
+        json.add("type", MetricRecord.class.getName());
+        json.add("start", startTime);
+        json.add("metricId", metricId);
+        json.add("timeFrame", timeFrame);
+        json.add("recording", recording);
+        if (mainVersion != null) {
+            json.add("mainVersion", mainVersion);
+        }
+
+        JsonObject jsonVersions = new JsonObject();
+        for (String version : records.keySet()) {
+            JsonArray recordJsonArray = new JsonArray();
+            for (Record record : records.get(version)) {
+                recordJsonArray.add(record.toJson());
+            }
+            jsonVersions.add(version, recordJsonArray);
+        }
+        json.add("records", jsonVersions);
+
+        return json;
+    }
+
+    /**
+     * Merge 1 version of an MR into the current MR,
+     * adding (sum=true) or subtracting the new values.
+     *
+     * @param srcMR The MetricRecord to merge
+     * @param sum   Merge by summing, otherwise merge by subtracting
+     */
+    public final void mergeRecords(final MetricRecord srcMR,
+                                   final String srcVersion,
+                                   final String destVersion,
+                                   final boolean sum) {
+
+        int sign = sum ? 1 : -1;
+        int i = 0;
+        int j = 0;
+        double prevInitial = 0;
+        double prevUpdated = 0;
+
+        if (!records.containsKey(destVersion)) {
+            records.put(destVersion, new LinkedList<>());
+        }
+
+        if (srcMR.getRecords(srcVersion).size() > 0) {
+            long startTime2 = srcMR.getStartTime();
+            LinkedList<Record> records2 = srcMR.getRecords(srcVersion);
+            while (i < records.get(destVersion).size()) {
+                Record record = records.get(destVersion).get(i);
+                while (j < records2.size()
+                        && records2.get(j).getTS() + startTime2 < record.getTS() + startTime) {
+                    long time = records2.get(j).getTS() + startTime2 - startTime;
+                    double val = prevInitial + sign * Double.valueOf(records2.get(j).getValue());
+                    Record newRecord = new Record(val + "", time);
+                    records.get(destVersion).add(i, newRecord);
+                    j++;
+                }
+
+                if (j >= records2.size()) {
+                    break;
+                }
+                if (records2.get(j).getTS() + startTime2
+                        == record.getTS() + startTime) {
+                    prevInitial = Double.valueOf(record.getValue());
+                    prevUpdated = prevInitial + sign * Double.valueOf(records2.get(j).getValue());
+                    record.setValue(prevUpdated + "");
+                    j++;
+                } else if (records2.get(j).getTS() + startTime2
+                        > record.getTS() + startTime) {
+                    if (j > 0) {
+                        double val = Double.valueOf(record.getValue())
+                                + sign * Double.valueOf(records2.get(j - 1).getValue());
+                        record.setValue(val + "");
+                    }
+                }
+                i++;
+            }
+
+            while (j < srcMR.getRecords(srcVersion).size()) {
+                double val = prevInitial + sign * Double.valueOf(records2.get(j).getValue());
+                long ts = records2.get(j).getTS() + startTime2 - startTime;
+                Record newRecord = new Record(val + "", ts);
+                records.get(destVersion).addLast(newRecord);
+                j++;
+            }
+
+            if (records.get(destVersion).getLast().getTS() > timeFrame) {
+                timeFrame = records.get(destVersion).getLast().getTS();
+            }
+        }
+    }
+
+    public final void mergeRecords(final MetricRecord metricRecord,
+                                   final boolean sum) {
+        mergeRecords(metricRecord, mainVersion, mainVersion, sum);
+    }
+
+
+    public double sum() {
+        double sum = 0;
+        if (getRecords() != null) {
+            for (Record record : getRecords()) {
+                sum += Double.valueOf(record.getValue());
+            }
+        }
+        return sum;
+    }
+
+    public HashMap<String, String> getValuesAt(final long ts) {
+        HashMap<String, String> valueMap = new HashMap<>();
+        for (String version : getAllVersionRecords().keySet()) {
+            LinkedList<Record> records = getAllVersionRecords().get(version);
+            int i = 0;
+            while (i < records.size() - 1 && records.get(i + 1).getTS() < ts) {
+                i++;
+            }
+            if (records.size()>0) {
+                valueMap.put(version, records.get(i).getValue());
+            }
+        }
+        return valueMap;
+    }
+
+    public String getMainVersion() {
+        return mainVersion;
+    }
+
+    public void setMainVersion(String mainVersion) {
+        this.mainVersion = mainVersion;
+    }
+
+
+    public static LinkedList<MetricRecord> sortByStartDate(final LinkedList<MetricRecord> loadList) {
+        LinkedList<MetricRecord> sortedLoadList = new LinkedList<>();
+        for (MetricRecord load : loadList) {
+            if (sortedLoadList.size() == 0) {
+                sortedLoadList.add(load);
+            } else {
+                int i = 1;
+                while (i < sortedLoadList.size() && sortedLoadList.get(i).getStartTime() < load.getStartTime()) i++;
+                sortedLoadList.add(i - 1, load);
+            }
+
+        }
+
+        return sortedLoadList;
+    }
+}

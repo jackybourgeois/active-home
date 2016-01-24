@@ -1,0 +1,128 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/google-apis/google-js-api.html">
+
+<dom-module id="metricrecord-view">
+
+    <template>
+
+        <style>
+            #chart {
+                margin: 10px -20px -20px 10px;
+                border-radius: 2px;
+                -webkit-box-shadow: 0 0 5px rgba(0,0,0,0.3);
+                box-shadow: 0 0 5px rgba(0,0,0,0.3);
+                background-color:rgba(200,200,200,0.2);
+            }
+        </style>
+
+        <iron-ajax id="ajax" handle-as="json" on-response="handleResponse"></iron-ajax>
+        <google-js-api on-api-load="{{readyForAction}}"></google-js-api>
+
+        <div id="chart" style="width: 100%; height: 100%;"></div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is:'metricrecord-view',
+            isReady: false,
+
+            metricId: "",
+            data: null,
+
+            dataTable: null,
+            chart: null,
+            options: { vAxis: {title: 'kWh'}, legend: 'bottom', backgroundColor: { fill:'transparent' } },
+
+            readyForAction: function(e, detail, sender) {
+                google.load("visualization", "1", {
+                    packages: ['corechart'],
+                    callback: function() {
+                        this.drawChart();
+                        this.isReady=true;
+                        if (this.data!=null) this.loadData();
+                    }.bind(this)
+                });
+            },
+
+            ready: function() {
+
+            },
+
+            init: function(attributes, data) {
+                this.metricId = attributes.metricId;
+                document.querySelector("web-socket").subscribe(this.uuid, this.metricId);
+                this.loadContent();
+            },
+
+            resize_start: function (e, ui, widget, grid) {
+                console.log(ui.size.height);
+            },
+
+            resize_stop: function (e, ui, widget, grid) {
+                this.drawChart();
+                this.loadData();
+            },
+
+            drag_start: function (e, ui, widget, grid) {
+                console.log(ui.position.left);
+            },
+
+            drag_stop: function (e, ui, widget, grid) {
+                console.log(ui.position.left);
+            },
+
+            loadContent: function() {
+                var ajax = this.$.ajax;
+                ajax.method = "POST";
+                ajax.url = "/context/getLastData";
+                ajax.body = JSON.stringify([this.metricId]);
+                ajax.generateRequest();
+            },
+
+            input: function(json) {
+                if (json.hasOwnProperty("content")) {
+                    if (json.content.metricId==this.metricId && json.content.value!=undefined) {
+                        this.data = JSON.parse(json.content.value);
+                        if (this.isReady) {
+                            this.drawChart();
+                            this.loadData();
+                        }
+                    }
+                }
+            },
+
+            handleResponse: function(e) {
+                if (e.detail.response[this.metricId]!=undefined) {
+                    this.data = JSON.parse(e.detail.response[this.metricId].value);
+                    if (this.isReady) {
+                        this.drawChart();
+                        this.loadData();
+                    }
+                }
+            },
+
+            loadData: function() {
+                data = this.data;
+
+                console.log(data);
+
+                this.dataTable.addColumn('datetime', 'Time');
+                this.dataTable.addColumn('number', data.metricId);
+
+                for (var i=0;i<data.records.length;i++) {
+                    var ts = data.records[i].ts + data.start;
+                    this.dataTable.addRow([new Date(ts),data.records[i].value]);
+                }
+
+                this.chart.draw(this.dataTable, this.options);
+            },
+
+            drawChart: function() {
+                this.chart = new google.visualization.AreaChart(this.$.chart);
+                this.dataTable = new google.visualization.DataTable();
+            }
+
+        });
+    </script>
+</dom-module>

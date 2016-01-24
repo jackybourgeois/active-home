@@ -1,0 +1,117 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="context-branch">
+
+    <template>
+
+        <style>
+            :host.selected > .branch > .metric {
+                background-color: rgba(31, 141, 214, 0.4);
+                border: 1px solid rgba(31, 141, 214, 0.7);
+                border-radius: 5px;
+            }
+
+            .parent, .name {
+                cursor: pointer;
+            }
+
+            ul {
+                margin: 0;
+                padding-left: 5px;
+            }
+
+            li {
+                list-style-type: none;
+                margin-left: 5px;
+            }
+
+            iron-icon {
+                cursor: pointer;
+                width: 16px;
+                height: 16px;
+            }
+
+            .name {
+                font-size: 10px;
+                font-weight: bold;
+            }
+
+            .currentValue {
+                font-size: 10px;
+            }
+
+            [hidden] {
+                display: none;
+            }
+        </style>
+
+        <div class="branch">
+            <div class="metric">
+                <iron-icon icon$="{{_determineIcon(data.open, data.children)}}"
+                           on-click="toggleChildren">
+                </iron-icon>
+                <span class="name" on-click="selectBranch">{{data.name}}</span>
+                <span class="currentValue">{{currentValue}}</span>
+            </div>
+            <ul hidden$={{!data.open}}>
+                <template is="dom-repeat" items="{{data.children}}">
+                    <li>
+                        <context-branch data="{{item}}"></context-branch>
+                    </li>
+                </template>
+            </ul>
+        </div>
+    </template>
+
+    <script>
+
+        Polymer({
+
+            is: 'context-branch',
+
+            properties: {
+                data: {
+                    type: Object,
+                    value: function () {
+                        return {};
+                    },
+                    observer: "updateCurrentValue"
+                },
+                currentValue: {
+                    type: String,
+                    value: ""
+                }
+            },
+
+            _determineIcon: function (open, children) {
+                return ((open && children && children.length) ? 'unfold-less' : children && children.length ? 'unfold-more' : '');
+            },
+
+            selectBranch: function (e) {
+                this.fire("context-branch-selected", this);
+            },
+
+            toggleChildren: function (e) {
+                this.set("data.open", !this.data.open && this.data.children && this.data.children.length);
+            },
+
+            updateCurrentValue: function () {
+                if (this.data.value != undefined
+                        && this.data.value["0"] != undefined
+                        && this.data.value["0"]["0"] != undefined) {
+                    this.currentValue = this.data.value["0"]["0"].value;
+                } else {
+                    this.currentValue = "";
+                }
+            },
+
+            ready: function () {
+                this.updateCurrentValue();
+            }
+
+        });
+
+    </script>
+
+</dom-module>

@@ -1,0 +1,115 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="350" height="300" id="svg6600"
+     version="1.1">
+    <style>
+        .s0{ fill:#338000; stroke-width:1; stroke:#338000; }
+        .s1{ fill:#008080; stroke-width:1; stroke:#008080; }
+        .s2{ -inkscape-font-specification:PT Sans Narrow; fill:#000; font-family:PT Sans Narrow;
+        font-size:13;letter-spacing:0; line-height:125; word-spacing:0; }
+        .s3{ -inkscape-font-specification:PT Sans Narrow; font-family:PT Sans Narrow; text-align:center;
+        text-anchor:middle; }
+    </style>
+    <defs id="defs6602">
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendM">
+            <path id="path5743" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendO">
+            <path id="path6230" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="marker6578">
+            <path id="path6580" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendO-2">
+            <path id="path6230-9" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lend3">
+            <path id="path7311" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="marker6694">
+            <path id="path6696" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="marker6698">
+            <path id="path6700" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendy">
+            <path id="path6227" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendO-5">
+            <path id="path6230-3" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendwm">
+            <path id="path7858" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="marker6827">
+            <path id="path6829" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="marker6831">
+            <path id="path6833" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendjz">
+            <path id="path5767" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendH">
+            <path id="path6245" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendg">
+            <path id="path6248" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="marker6841">
+            <path id="path6843" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendwm-9">
+            <path id="path7858-5" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="marker7037">
+            <path id="path7039" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendjz-2">
+            <path id="path5767-0" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendH-3">
+            <path id="path6245-5" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendg-1">
+            <path id="path6248-8" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendO-4">
+            <path id="path6230-8" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendg-2">
+            <path id="path6248-4" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendjz-6">
+            <path id="path5767-7" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lend4g">
+            <path id="path7314" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1LendF">
+            <path id="path5740" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s0"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendz">
+            <path id="path6251" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+        <marker orient="auto" refY="0" refX="0" id="Arrow1Lendx">
+            <path id="path6239" d="M0 0 5-5-12.5 0 5 5 0 0z" transform="matrix(-0.8,0,0,-0.8,-10,0)" class="s1"/>
+        </marker>
+    </defs>
+    <metadata id="metadata6605"/>
+    <g id="layer1" transform="translate(0,-752.36218)">
+        <path id="path4525-3" d="m250.54 818.54 72.94 0 0 154.56-52.78 0"
+              style="fill:none;marker-end:url(#Arrow1Lendx);stroke:#008080"/>
+        <text xml:space="preserve" x="248.61" y="810.65" id="text4527-8" class="s2"> <tspan id="tspan4529-8" x="248.61" y="810.65"> pushNotif </tspan> </text>
+        <rect y="800.84" x="135.04" height="127.38" width="106.92" id="rect3787-5"
+              style="fill:#ffe680;stroke-width:1;stroke:#000"/>
+        <text id="text3789-5" y="829.26" x="159.99" xml:space="preserve" style="fill:#000;font-family:PT Sans Narrow;font-size:19.1;letter-spacing:0;line-height:125;word-spacing:0"> <tspan y="829.26" x="159.99" id="tspan3791-8" style="-inkscape-font-specification:PT Sans Narrow;font-family:PT Sans Narrow;font-size:17.46"> Context </tspan> </text>
+        <path d="m106.8 994.96-74.56 0 0-173.43 92.3 0" id="path5302-1"
+              style="fill:none;marker-end:url(#Arrow1Lendz);stroke:#008080"/>
+        <text id="text5304-0" y="814.64" x="66.09" xml:space="preserve" class="s2"> <tspan y="814.64" x="66.09" id="tspan5306-1"> getNotif </tspan> </text>
+        <path id="path5308-5" d="m106.8 965.67-60.31 0 0-112.27 77.28 0"
+              style="fill:none;marker-end:url(#Arrow1LendF);stroke-width:1;stroke:#338000"/>
+        <text xml:space="preserve" x="52.59" y="869.99" id="text5310-3" class="s2"> <tspan id="tspan5312-3" x="52.59" y="869.99"> getDataLast </tspan> <tspan x="52.59" y="886.24" id="tspan5831"> getData </tspan> <tspan x="52.59" y="902.49" id="tspan5815"> subscribe </tspan> <tspan x="52.59" y="918.74" id="tspan5817"> unsubscribe </tspan> <tspan x="52.59" y="934.99" id="tspan5827"> setTrigger </tspan> <tspan x="52.59" y="951.24" id="tspan5819"/> </text>
+        <rect id="rect5809" width="151.19" height="61.91" x="112.91" y="948.69"
+              style="fill:#b3b3b3;stroke-width:1.9;stroke:#000"/>
+        <text transform="scale(1.0032551,0.99675547)" xml:space="preserve" x="145.56" y="985.59" id="text5811" style="-inkscape-font-specification:PT Sans Narrow;fill:#000;font-family:PT Sans Narrow;font-size:16.06;letter-spacing:0;line-height:125;word-spacing:0"> <tspan id="tspan5813" x="145.56" y="985.59" style="-inkscape-font-specification:PT Sans Narrow;font-family:PT Sans Narrow;font-size:17.47"> Context Tester </tspan> </text> <text xml:space="preserve" x="38.52" y="1010.36" id="text5821" class="s2"> <tspan id="tspan5823" x="38.52" y="1010.36"> Fake App Rate </tspan> </text> <text xml:space="preserve" x="188.49" y="854.09" id="text4531-1" class="s2"> <tspan id="tspan4533-6" x="188.49" y="854.09" class="s3"> Update </tspan> <tspan x="188.49" y="870.34" id="tspan4537-5" class="s3"> Save </tspan> <tspan x="188.49" y="886.59" id="tspan4535-5" class="s3"> Trigger </tspan> <tspan x="188.49" y="902.84" id="tspan4539-7" class="s3"> Notify </tspan> </text>
+    </g>
+</svg>

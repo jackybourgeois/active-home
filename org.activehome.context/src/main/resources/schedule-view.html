@@ -1,0 +1,442 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/google-apis/google-legacy-loader.html">
+<link rel="import" href="/bower_components/paper-button/paper-button.html">
+<link rel="import" href="/bower_components/iron-icon/iron-icon.html">
+<link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+
+<dom-module id="schedule-view">
+
+    <template>
+        <style>
+            summary:focus {
+                outline-style: none;
+            }
+
+            .mr-chart {
+                width: 100%;
+                height: 300px
+            }
+        </style>
+
+        <iron-ajax id="ajax" handle-as="json" on-response="handleResponse"></iron-ajax>
+        <google-legacy-loader on-api-load="readyForAction"></google-legacy-loader>
+
+        <h2>{{name}}</h2>
+
+        <paper-button class="raised" on-click="shiftLeft">
+            <iron-icon icon="chevron-left"></iron-icon>
+        </paper-button>
+
+        <paper-button id="1y-zoom-bt" raised style="width: 40px;" on-click="zoom">1y</paper-button>
+        <paper-button id="6m-zoom-bt" raised style="width: 40px;" on-click="zoom">6m</paper-button>
+        <paper-button id="3m-zoom-bt" raised style="width: 40px;" on-click="zoom">3m</paper-button>
+        <paper-button id="1m-zoom-bt" raised style="width: 40px;" on-click="zoom">1m</paper-button>
+        <paper-button id="1w-zoom-bt" raised style="width: 40px;" on-click="zoom">1w</paper-button>
+        <paper-button id="2d-zoom-bt" raised style="width: 40px;" on-click="zoom">2d</paper-button>
+        <paper-button id="1d-zoom-bt" raised style="width: 40px;" on-click="zoom">1d</paper-button>
+        <paper-button id="6h-zoom-bt" raised style="width: 40px;" on-click="zoom">6h</paper-button>
+        <paper-button id="3h-zoom-bt" raised style="width: 40px;" on-click="zoom">3h</paper-button>
+        <paper-button id="now-bt" raised on-click="now">now</paper-button>
+
+
+        <paper-button class="raised" on-click="shiftRight">
+            <iron-icon icon="chevron-right"></iron-icon>
+        </paper-button>
+
+        <div id="scheduleDiv"></div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'schedule-view',
+            properties: {
+                schedule: {
+                    type: Object,
+                    value: null,
+                    observer: "displaySchedule"
+                },
+                name: {
+                    type: String,
+                    value: "Schedule"
+                },
+                metrics: {
+                    type: String,
+                    value: "",
+                    observer: "loadContent"
+                },
+                start: {
+                    type: Number,
+                    value: 0,
+                    observer: "loadContent"
+                },
+                horizon: {
+                    type: Number,
+                    value: 86400000,
+                    observer: "loadContent"
+                },
+                granularity: {
+                    type: Number,
+                    value: 3600000
+                }
+            },
+            isReady: false,
+            rowsToDraw: {},
+            charts: {},
+            lastUpdate: 0,
+
+            readyForAction: function (e, detail, sender) {
+                google.load("visualization", "1.1", {
+                    packages: ['corechart', 'bar', 'timeline'],
+                    callback: function () {
+                        this.isReady = true;
+                        if (this.schedule != null) {
+                            this.displaySchedule();
+                        }
+                    }.bind(this)
+                });
+            },
+
+            ready: function () {
+                if (this.schedule != null) {
+                    displaySchedule();
+                } else {
+                    this.loadContent();
+                }
+            },
+
+            loadContent: function () {
+                if (this.metrics != "") {
+                    var metricArray = this.metrics.split(",");
+                    for (var key in metricArray) {
+                        document.querySelector("web-socket").subscribe(this.id, metricArray[key], this);
+                    }
+                    var startTS = this.start;
+                    if (startTS == 0) {
+                        startTS = document.querySelector("web-socket").time.ts - this.horizon;
+                    }
+                    var ajax = this.$.ajax;
+                    ajax.method = "POST";
+                    ajax.url = "/context/extractSchedule/" + startTS + "/" + this.horizon + "/" + this.granularity;
+                    ajax.body = JSON.stringify({params: metricArray});
+                    this.fire('sent-ajax', {url: ajax.url, body: ajax.body});
+                    ajax.generateRequest();
+                }
+            },
+
+            shiftRight: function(e) {
+                if (this.start==0) {
+                    this.start = document.querySelector("web-socket").time.ts + this.horizon;
+                } else {
+                    this.start += this.horizon;
+                }
+            },
+
+            shiftLeft: function(e) {
+                if(this.start==0) {
+                    this.start = document.querySelector("web-socket").time.ts - this.horizon;
+                } else {
+                    this.start -= this.horizon;
+                }
+            },
+
+            zoom: function(e) {
+                console.log(e);
+                var newHorizon = this.convert(e.srcElement.id.split("-")[0]);
+                console.log(newHorizon);
+                this.horizon = newHorizon;
+            },
+
+            now: function() {
+                this.start = 0;
+            },
+
+            input: function (json) {
+                if (json.hasOwnProperty("content")) {
+                    var metric = json.content.metricId;
+                    var metricData = this.rowsToDraw[metric];
+                    if (metricData != undefined) {
+                        var newVal = parseFloat(json.content.value);
+                        if (metricData.length > 0) {
+                            var dumRow = metricData[metricData.length - 1].slice();
+                            dumRow[0] = new Date(json.content.ts - 1 - timezone);
+                            metricData.push(dumRow);
+
+                            var row = [new Date(json.content.ts - timezone)];
+                            for (var i = 0; i < this.metrics.length; i++) {
+                                row.push(this.lastVal[this.metrics[i]]);
+                            }
+                            metricData.push(row);
+                        }
+
+//                        while (metricData > 0 && (json.content.ts - metricD[0].getTime()) > 42300000) {
+//                            this.rowsToDraw.shift();
+//                        }
+
+                        if (json.content.ts - this.lastTS > 1000) {
+                            this.charts[metric].rows = metricData.slice();
+                            this.lastTS = json.content.ts;
+                        }
+                    }
+
+                }
+            },
+
+            handleResponse: function (e) {
+                this.schedule = e.detail.response;
+            },
+
+            displaySchedule: function () {
+                if (this.isReady) {
+                    this.$.scheduleDiv.innerHTML = "";
+                    for (var i in this.schedule.mr) {
+                        var mr = this.schedule.mr[i];
+                        var number = mr.records[mr.mainVersion].length > 0
+                                && this.isNumeric(mr.records[mr.mainVersion][0].value);
+
+                        var mrContainer = document.createElement("div");
+                        mrContainer.id = mr.metricId + "-mr";
+                        mrContainer.class = "mr";
+                        this.$.scheduleDiv.appendChild(mrContainer);
+
+                        var mrNav = document.createElement("div");
+                        mrNav.id = mr.metricId + "-mr-nav";
+                        mrNav.class = "mr-nav";
+                        mrContainer.appendChild(mrNav);
+
+                        var container = document.createElement("div");
+                        container.id = mr.metricId + "-mr-chart";
+                        container.class = "mr-chart";
+                        mrContainer.appendChild(container);
+
+                        if (number) {
+                            if (mr.records[mr.mainVersion].length > 0 && mr.records[mr.mainVersion][0].hasOwnProperty("duration")) {
+                                this.drawColumnChart(container, mr, mrNav);
+                            } else {
+                                this.drawAreaChart(container, mr, mrNav);
+                            }
+                        } else {
+                            this.drawTimeLine(container, mr, mrNav);
+                        }
+                    }
+                }
+            },
+
+            drawColumnChart: function (container, mr, mrNav) {
+                var timezone = document.querySelector("web-socket").getTimeZone() * 3600000;
+                var title = mr.metricId + " (Discrete or Sampled)";
+                var options = {
+                    title: title,
+                    legend: {position: 'bottom'},
+                    bar: {groupWidth: '90%'},
+                    backgroundColor: 'transparent'
+                };
+                var dataArray = [['Time']];
+                var nextIndex = {};
+                var ts = 0;
+                for (var version in mr.records) {
+                    dataArray[0].push(version);
+                    nextIndex[version] = 0;
+                }
+
+                var nextTS = mr.start;
+
+                while (ts < nextTS) {
+                    ts = nextTS;
+                    var row = [new Date(ts - timezone)];
+                    for (var i in nextIndex) {
+                        if (mr.start + mr.records[i][nextIndex[i]].ts == ts) {
+                            row.push(parseFloat(mr.records[i][nextIndex[i]].value));
+                            if (nextIndex[i] < mr.records[i].length - 1) {
+                                nextIndex[i]++;
+                            }
+                        } else if (nextIndex[i] == 0) {
+                            row.push(0);
+                        } else {
+                            row.push(parseFloat(mr.records[i][nextIndex[i] - 1]));
+                        }
+                        if ((ts == nextTS && nextTS < mr.start + mr.records[i][nextIndex[i]].ts) ||
+                                nextTS > mr.start + mr.records[i][nextIndex[i]].ts) {
+                            nextTS = mr.start + mr.records[i][nextIndex[i]].ts;
+                        }
+                    }
+                    dataArray.push(row);
+                }
+
+                if (mr.records.length > 0 && ts < mr.start + mr.timeFrame) {
+                    var row = [new Date(mr.start + mr.timeFrame - timezone)];
+                    for (var i in nextIndex) {
+                        if (nextIndex[i] == 0 || nextIndex[i] == -1) {
+                            row.push(null);
+                        } else {
+                            row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
+                        }
+                    }
+                    dataArray.push(row);
+                }
+
+                var data = google.visualization.arrayToDataTable(dataArray);
+                var chart = new google.visualization.ColumnChart(container);
+                this.addPrintButton(chart, mrNav);
+                chart.draw(data, options);
+            },
+
+            addPrintButton: function (chart, mrNav) {
+                var comp = this;
+                google.visualization.events.addListener(chart, 'ready', function () {
+                    comp.printBt(chart, mrNav);
+                });
+            },
+
+            printBt: function (chart, mrNav) {
+                mrNav.innerHTML += '<a href="' + chart.getImageURI() + '">Print</a>';
+            },
+
+            drawAreaChart: function (container, mr, mrNav) {
+                var timezone = document.querySelector("web-socket").getTimeZone() * 3600000;
+                var options = {
+                    title: mr.metricId + " (Continuous)",
+                    legend: {position: 'bottom'},
+                    backgroundColor: 'transparent'
+                };
+                var dataArray = [['Time']];
+                var nextIndex = {};
+                var ts = 0;
+                for (var version in mr.records) {
+                    dataArray[0].push(version);
+                    nextIndex[version] = 0;
+                }
+
+                var nextTS = mr.start;
+
+                while (ts < nextTS) {
+                    ts = nextTS;
+
+                    if (ts > mr.start) {
+                        row = [new Date(ts - timezone - 1)];
+                        for (var i in nextIndex) {
+                            if (nextIndex[i] == 0 || nextIndex[i] == -1) {
+                                row.push(null);
+                            } else {
+                                row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
+                            }
+                        }
+                        dataArray.push(row);
+                    }
+
+                    var row = [new Date(ts - timezone)];
+                    for (var i in nextIndex) {
+                        if (nextIndex[i] != -1 && mr.start + mr.records[i][nextIndex[i]].ts == ts) {
+                            row.push(parseFloat(mr.records[i][nextIndex[i]].value));
+                            if (nextIndex[i] < mr.records[i].length - 1) {
+                                nextIndex[i]++;
+                            } else {
+                                nextIndex[i] = -1;
+                            }
+                        } else if (nextIndex[i] == 0 || nextIndex[i] == -1) {
+                            row.push(null);
+                        } else {
+                            row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
+                        }
+                        if (nextIndex[i] != -1) {
+                            if ((ts == nextTS && nextTS < mr.start + mr.records[i][nextIndex[i]].ts) ||
+                                    nextTS > mr.start + mr.records[i][nextIndex[i]].ts) {
+                                nextTS = mr.start + mr.records[i][nextIndex[i]].ts;
+                            }
+                        }
+
+                    }
+                    dataArray.push(row);
+                }
+
+                if (ts < mr.start + mr.timeFrame) {
+                    var row = [new Date(mr.start + mr.timeFrame - timezone)];
+                    for (var i in nextIndex) {
+                        if (nextIndex[i] == 0 || nextIndex[i] == -1) {
+                            row.push(null);
+                        } else {
+                            row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
+                        }
+                    }
+                    dataArray.push(row);
+                }
+
+                // keep these rows without header to redraw later
+                this.rowsToDraw[mr.metricId.split("#")[0]] = dataArray.slice(1);
+
+                var data = google.visualization.arrayToDataTable(dataArray);
+                var chart = new google.visualization.AreaChart(container);
+                this.addPrintButton(chart, mrNav);
+                chart.draw(data, options);
+                this.charts[mr.metricId.split("#")[0]] = chart;
+            },
+
+            drawTimeLine: function (container, mr, mrNav) {
+                var timezone = document.querySelector("web-socket").getTimeZone() * 3600000;
+                var options = {
+                    title: mr.metricId,
+                    legend: {position: 'none'},
+                    groupByRowLabel: true,
+                    backgroundColor: 'transparent'
+                };
+                var dataTable = new google.visualization.DataTable();
+                var dataArray = [];
+
+                dataTable.addColumn({type: 'string', id: 'Value'});
+                dataTable.addColumn({type: 'date', id: 'Start'});
+                dataTable.addColumn({type: 'date', id: 'End'});
+                var start;
+                var end;
+                for (var j = 0; j < mr.records.length; j++) {
+                    var record = mr.records[j];
+                    start = new Date(mr.start + record.ts - timezone);
+                    if (j < mr.records.length - 1) {
+                        end = new Date(mr.start + mr.records[j + 1].ts - timezone);
+                    } else {
+                        end = new Date(mr.start + mr.timeFrame - timezone);
+                    }
+                    dataArray.push([record.value, start, end]);
+                }
+                dataTable.addRows(dataArray);
+
+                var chart = new google.visualization.Timeline(container);
+                this.addPrintButton(chart, mrNav);
+                chart.draw(dataTable, options);
+            },
+
+            isNumeric: function (n) {
+                return !isNaN(parseFloat(n)) && isFinite(n);
+            },
+
+            stop: function () {
+                document.querySelector("web-socket").unsubscribe(this.id);
+            },
+
+            convert: function(strHorizon) {
+                if (strHorizon.endsWith("y")) {
+                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*31540000000;
+                } else if (strHorizon.endsWith("m")) {
+                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*2628000000;
+                } else if (strHorizon.endsWith("w")) {
+                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*604800000;
+                } else if (strHorizon.endsWith("d")) {
+                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*86400000;
+                } else if (strHorizon.endsWith("h")) {
+                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*3600000;
+                }
+                return 0;
+            }
+        });
+    </script>
+</dom-module>
+
+
+
+
+
+
+
+
+
+
+

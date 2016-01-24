@@ -1,0 +1,94 @@
+<link rel="import" href="/bower_components/google-chart/google-chart.html">
+
+<dom-module id="instant-chart">
+
+    <template>
+        <core-style ref="activehome-theme"></core-style>
+
+        <google-chart id='chart' type='line'
+                      options='{"title":"Chart","chartArea":{"width":"70%"}}'
+                      cols='[]' rows='[]' style="width:100%;height:100%">
+        </google-chart>
+    </template>
+
+    <script>
+        Polymer({
+            is:'instant-chart',
+            properties: {
+                metric: String,
+            },
+            metrics: [],
+            rowsToDraw: [],
+            lastTS: 0,
+            lastVal: {},
+
+            ready: function () {
+            },
+
+            init: function (attributes, data) {
+                this.metrics = attributes.metrics;
+                console.log("chart init");
+                console.log(attributes);
+                var title = this.metrics[0].substr(0, this.metrics[0].lastIndexOf("."));
+                var cols = [{"label": "Time", "type": "datetime"}];
+                var row = [new Date(0)];
+                for (var i = 0; i < this.metrics.length; i++) {
+                    cols.push({"label": this.metrics[i], "type": "number"});
+                    row.push(0);
+                    this.lastVal[this.metrics[i]] = 0;
+                    document.querySelector("web-socket").subscribe(this.uuid, this.metrics[i]);
+                }
+                this.$.chart.rows = [row];
+                this.$.chart.cols = cols;
+                this.$.chart.title = title;
+                document.querySelector("web-socket").addEventListener('tic', function (e) {
+                    if (e.detail.ts - this.lastTS > 300000) {
+                        this.rowsToDraw.push(this.rowsToDraw[this.rowsToDraw.length - 1].slice());
+                        chart.rows = this.rowsToDraw.slice();
+                        this.lastTS = e.detail.ts;
+                    }
+                });
+            },
+
+            resize_start: function (e, ui, widget, grid) {
+            },
+
+            resize_stop: function (e, ui, widget, grid) {
+            },
+
+            drag_start: function (e, ui, widget, grid) {
+            },
+
+            drag_stop: function (e, ui, widget, grid) {
+            },
+
+            input: function (json) {
+                if (json.hasOwnProperty("content")) {
+                    var chart = this.$.chart;
+                    if (this.lastVal[json.content.metricId] != undefined) {
+                        this.lastVal[json.content.metricId] = parseFloat(json.content.value);
+                        if (this.rowsToDraw.length > 0) {
+                            var dumRow = this.rowsToDraw[this.rowsToDraw.length - 1].slice();
+                            dumRow[0] = new Date(json.content.ts - 1);
+                            this.rowsToDraw.push(dumRow);
+                        }
+                        var row = [new Date(json.content.ts)];
+                        for (var i = 0; i < this.metrics.length; i++) {
+                            row.push(this.lastVal[this.metrics[i]]);
+                        }
+                        this.rowsToDraw.push(row);
+                        while (this.rowsToDraw.length > 0 && (json.content.ts - this.rowsToDraw[0][0].getTime()) > 42300000) {
+                            this.rowsToDraw.shift();
+                        }
+                        if (json.content.ts - this.lastTS > 300000) {
+                            chart.rows = this.rowsToDraw.slice();
+                            this.lastTS = json.content.ts;
+                        }
+                    }
+
+                }
+            }
+
+        });
+    </script>
+</dom-module>

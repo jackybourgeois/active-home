@@ -1,0 +1,403 @@
+<link rel="import" href="/bower_components/core-ajax/core-ajax.html">
+<link rel="import" href="/bower_components/google-apis/google-jsapi.html">
+
+<dom-module id="schedule-view" attributes="title,metrics,instant,timeframe,start">
+
+    <template>
+        <style>
+            summary:focus {
+                outline-style: none;
+            }
+        </style>
+
+        <core-ajax id="ajax" handleAs="json" on-core-response="{{handleResponse}}"></core-ajax>
+        <google-jsapi on-api-load="{{readyForAction}}"></google-jsapi>
+
+        <h2>{{name}}</h2>
+        <template>
+            <details open>
+                <summary>Interactive appliances</summary>
+                <span id="interactive" class="chart" style="width: 100%; height: 100%;"></span>
+            </details>
+        </template>
+    </template>
+
+    <script>
+        Polymer({
+            is:'schedule-view',
+            isReady: false,
+            title: "Schedule",
+            currentSchedule: null,
+
+            interactiveDataTable: null,
+            interactiveChart: null,
+            options: {timeline: {colorByRowLabel: true, showRowLabels: false, tooltip: {trigger: 'none'}}},
+
+            bgDataTable: null,
+            bgChart: null,
+            optionsBg: {vAxis: {title: 'kWh'}, legend: 'bottom', isStacked: true},
+
+            genDataTable: null,
+            genChart: null,
+            optionsGen: {
+                colors: ['#00cc00'],
+                vAxis: {title: 'kWh'}, legend: 'bottom', isStacked: true
+            },
+
+            gridDataTable: null,
+            gridChart: null,
+            optionsGrid: {vAxis: {title: 'CO2/kWh'}, legend: 'bottom', isStacked: true},
+
+            tariffDataTable: null,
+            tariffChart: null,
+            optionsTariff: {vAxis: {title: '£/kWh'}, legend: 'bottom'},
+
+            readyForAction: function (e, detail, sender) {
+                google.load("visualization", "1", {
+                    packages: ['corechart', 'timeline'],
+                    callback: function () {
+                        this.drawChart();
+                        this.isReady = true;
+                        if (this.currentSchedule != null) this.loadData();
+                    }.bind(this)
+                });
+            },
+
+            ready: function () {
+
+            },
+
+            updateAttributes: function (attributes) {
+                this.scheduleName = attributes.scheduleName;
+                if (attributes.hasOwnProperty("metrics")) {
+                    this.metrics = attributes.metrics;
+                    for (var metric in this.metrics.split(",")) {
+                        document.querySelector("web-socket").subscribe(this.uuid, metric);
+                    }
+                }
+                this.loadContent();
+            },
+
+            loadContent: function () {
+                var ajax = this.$.ajax;
+                ajax.method = "POST";
+                ajax.url = "/context/extractSchedule/" + start + "/" + duration + "/" + granularity;
+                ajax.body = JSON.stringify({params:this.metrics.split(",")});
+                ajax.go();
+            },
+
+            input: function (json) {
+                if (json.hasOwnProperty("content")) {
+                    if (json.content.metricId == this.scheduleName && json.content.value != undefined) {
+                        this.currentSchedule = JSON.parse(json.content.value);
+                        if (this.isReady) {
+                            this.drawChart();
+                            this.loadData();
+                        }
+                    }
+                }
+            },
+
+            handleResponse: function (e) {
+                if (e.detail.response[this.scheduleName] != undefined) {
+                    this.currentSchedule = JSON.parse(e.detail.response[this.scheduleName].value);
+                    if (this.isReady) {
+                        this.drawChart();
+                        this.loadData();
+                    }
+                }
+            },
+
+            loadData: function () {
+                data = this.currentSchedule;
+
+                console.log(data);
+
+                if (data.impact != undefined) {
+                    var impact = "Impact => ";
+                    for (var i = 0; i < data.impact.length; i++) {
+                        impact += data.impact[i].objective + ": " + data.impact[i].value;
+                        if (i < data.impact.length - 1) impact += ", ";
+                    }
+                    this.$.impact = impact;
+                }
+
+                this.interactiveDataTable.addRow([' ', ' ', new Date(data.start), new Date(data.start)]);
+                this.interactiveDataTable.addRow([' ', ' ', new Date(data.start + data.horizon - data.granularity),
+                    new Date(data.start + data.horizon - data.granularity)]);
+                for (var key in data.load.interactive) {
+                    for (var i = 0; i < data.load.interactive[key].length; i++) {
+                        var shift = 0;
+                        if (data.difference != undefined) {
+                            shift = data.difference.transformation[key][i].param;
+                        }
+                        var load = data.load.interactive[key][i];
+                        this.interactiveDataTable.addRow([load.metricId, load.metricId, new Date(load.start + shift),
+                            new Date(load.start + shift + load.records[load.records.length - 1].ts)]);
+                    }
+                }
+                this.interactiveChart.draw(this.interactiveDataTable, this.options);
+            },
+
+            drawChart: function () {
+                this.interactiveChart = new google.visualization.Timeline(this.$.interactive);
+                this.interactiveDataTable = new google.visualization.DataTable();
+                this.interactiveDataTable.addColumn({type: 'string', id: 'Metric'});
+                this.interactiveDataTable.addColumn({type: 'string', id: 'Load'});
+                this.interactiveDataTable.addColumn({type: 'date', id: 'Start'});
+                this.interactiveDataTable.addColumn({type: 'date', id: 'End'});
+
+                this.bgChart = new google.visualization.AreaChart(this.$.background);
+                this.bgDataTable = new google.visualization.DataTable();
+
+                this.genChart = new google.visualization.AreaChart(this.$.generation);
+                this.genDataTable = new google.visualization.DataTable();
+
+                this.gridChart = new google.visualization.AreaChart(this.$.grid);
+                this.gridDataTable = new google.visualization.DataTable();
+
+                this.tariffChart = new google.visualization.AreaChart(this.$.tariff);
+                this.tariffDataTable = new google.visualization.DataTable();
+            },
+
+
+            updateBg: function (schedule) {
+                var bgLoad = schedule.load.background;
+                this.bgDataTable.addColumn('datetime', 'Time');
+
+                var bgValues = {};
+
+                for (var key in bgLoad) {
+                    this.bgDataTable.addColumn('number', bgLoad[key].metricId);
+                    for (var i = 0; i < bgLoad[key].records.length; i++) {
+                        var ts = bgLoad[key].records[i].ts + bgLoad[key].start;
+                        if (bgValues[ts] == undefined) bgValues[ts] = [];
+                        bgValues[ts].push({metricId: bgLoad[key].metricId, value: bgLoad[key].records[i].value})
+                    }
+                }
+
+                var currentVal = {};
+
+                var comp = this;
+                Object.keys(bgValues)
+                        .sort()
+                        .forEach(function (ts, i) {
+                            var row = [];
+                            row.push(new Date(parseInt(ts)));
+                            for (var key in bgLoad) {
+                                var changed = false;
+                                for (var i = 0; i < bgValues[ts].length; i++) {
+                                    if (bgValues[ts][i].metricId == key) {
+                                        row.push(bgValues[ts][i].value);
+                                        currentVal[key] = bgValues[ts][i].value;
+                                        changed = true;
+                                    }
+                                }
+                                if (!changed) {
+                                    if (currentVal[key] != undefined) {
+                                        row.push(currentVal[key]);
+                                    } else {
+                                        row.push(0);
+                                    }
+                                }
+                            }
+                            comp.bgDataTable.addRow(row);
+                        });
+            },
+
+            updateGen: function (schedule) {
+                var genLoad = schedule.load.generation;
+                this.genDataTable.addColumn('datetime', 'Time');
+
+                var genValues = {};
+
+                for (var key in genLoad) {
+                    this.genDataTable.addColumn('number', genLoad[key].metricId);
+                    for (var i = 0; i < genLoad[key].records.length; i++) {
+                        var ts = genLoad[key].records[i].ts + genLoad[key].start;
+                        if (genValues[ts] == undefined) genValues[ts] = [];
+                        genValues[ts].push({metricId: genLoad[key].metricId, value: genLoad[key].records[i].value})
+                    }
+                }
+
+                var currentVal = {};
+
+                var comp = this;
+                Object.keys(genValues)
+                        .sort()
+                        .forEach(function (ts, i) {
+                            var row = [];
+                            row.push(new Date(parseInt(ts)));
+                            for (var key in genLoad) {
+                                var changed = false;
+                                for (var i = 0; i < genValues[ts].length; i++) {
+                                    if (genValues[ts][i].metricId == key) {
+                                        row.push(genValues[ts][i].value);
+                                        currentVal[key] = genValues[ts][i].value;
+                                        changed = true;
+                                    }
+                                }
+                                if (!changed) {
+                                    if (currentVal[key] != undefined) {
+                                        row.push(currentVal[key]);
+                                    } else {
+                                        row.push(0);
+                                    }
+                                }
+                            }
+                            comp.genDataTable.addRow(row);
+                        });
+            },
+
+            updateGrid: function (schedule) {
+                var grid = schedule.grid;
+                this.gridDataTable.addColumn('datetime', 'Time');
+
+                var gridValues = {};
+
+                for (var key in grid.share) {
+                    this.gridDataTable.addColumn('number', grid.share[key].metricId);
+                    for (var i = 0; i < grid.share[key].records.length; i++) {
+                        var ts = grid.share[key].records[i].ts + grid.share[key].start;
+                        if (gridValues[ts] == undefined) gridValues[ts] = [];
+                        gridValues[ts].push({
+                            metricId: grid.share[key].metricId,
+                            value: grid.share[key].records[i].value
+                        })
+                    }
+                }
+
+                var currentVal = {};
+
+                var comp = this;
+                Object.keys(gridValues)
+                        .sort()
+                        .forEach(function (ts, index) {
+                            var rowPrev = [];
+                            var row = [];
+                            ts = parseInt(ts);
+                            /*if (index==0 && ts!=tariff.start) {
+                             var firstRow = [new Date(tariff.start)];
+                             for (var key in tariff) {
+                             firstRow.push(0);
+                             }
+                             comp.tariffDataTable.addRow(firstRow);
+                             }*/
+
+                            rowPrev.push(new Date(ts - 1));
+                            row.push(new Date(ts));
+                            for (var key in grid.share) {
+                                var changed = false;
+                                for (var i = 0; i < gridValues[ts].length; i++) {
+                                    if (gridValues[ts][i].metricId == grid.share[key].metricId) {
+                                        row.push(gridValues[ts][i].value);
+                                        if (currentVal[key] != undefined) {
+                                            rowPrev.push(currentVal[key]);
+                                        } else {
+                                            rowPrev.push(0);
+                                        }
+                                        currentVal[key] = gridValues[ts][i].value;
+                                        changed = true;
+                                    }
+                                }
+                                if (!changed) {
+                                    if (currentVal[key] != undefined) {
+                                        row.push(currentVal[key]);
+                                        rowPrev.push(currentVal[key]);
+                                    } else {
+                                        row.push(0);
+                                        rowPrev.push(0);
+                                    }
+                                }
+                            }
+                            comp.gridDataTable.addRow(rowPrev);
+                            comp.gridDataTable.addRow(row);
+                        });
+
+                var lastRow = [new Date(schedule.start + schedule.horizon)];
+                for (var key in grid.share) {
+                    if (currentVal[key] != undefined) {
+                        lastRow.push(currentVal[key]);
+                    } else {
+                        lastRow.push(0);
+                    }
+                }
+                comp.gridDataTable.addRow(lastRow);
+            },
+
+            updateTariff: function (schedule) {
+                var tariff = schedule.tariff;
+                this.tariffDataTable.addColumn('datetime', 'Time');
+
+                var tariffValues = {};
+
+                for (var key in tariff) {
+                    this.tariffDataTable.addColumn('number', tariff[key].metricId);
+                    for (var i = 0; i < tariff[key].records.length; i++) {
+                        var ts = tariff[key].records[i].ts + tariff[key].start;
+                        if (tariffValues[ts] == undefined) tariffValues[ts] = [];
+                        tariffValues[ts].push({metricId: tariff[key].metricId, value: tariff[key].records[i].value})
+                    }
+                }
+
+                var currentVal = {};
+
+                var comp = this;
+                Object.keys(tariffValues)
+                        .sort()
+                        .forEach(function (ts, index) {
+                            var rowPrev = [];
+                            var row = [];
+                            ts = parseInt(ts);
+                            /*if (index==0 && ts!=tariff.start) {
+                             var firstRow = [new Date(tariff.start)];
+                             for (var key in tariff) {
+                             firstRow.push(0);
+                             }
+                             comp.tariffDataTable.addRow(firstRow);
+                             }*/
+
+                            rowPrev.push(new Date(ts - 1));
+                            row.push(new Date(ts));
+                            for (var key in tariff) {
+                                var changed = false;
+                                for (var i = 0; i < tariffValues[ts].length; i++) {
+                                    if (tariffValues[ts][i].metricId == tariff[key].metricId) {
+                                        row.push(tariffValues[ts][i].value);
+                                        if (currentVal[key] != undefined) {
+                                            rowPrev.push(currentVal[key]);
+                                        } else {
+                                            rowPrev.push(0);
+                                        }
+                                        currentVal[key] = tariffValues[ts][i].value;
+                                        changed = true;
+                                    }
+                                }
+                                if (!changed) {
+                                    if (currentVal[key] != undefined) {
+                                        row.push(currentVal[key]);
+                                        rowPrev.push(currentVal[key]);
+                                    } else {
+                                        row.push(0);
+                                        rowPrev.push(0);
+                                    }
+                                }
+                            }
+                            comp.tariffDataTable.addRow(rowPrev);
+                            comp.tariffDataTable.addRow(row);
+                        });
+
+                var lastRow = [new Date(schedule.start + schedule.horizon)];
+                for (var key in tariff) {
+                    if (currentVal[key] != undefined) {
+                        lastRow.push(currentVal[key]);
+                    } else {
+                        lastRow.push(0);
+                    }
+                }
+                comp.tariffDataTable.addRow(lastRow);
+            }
+
+        });
+    </script>
+</dom-module>

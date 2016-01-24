@@ -1,0 +1,57 @@
+<link rel="import" href="/bower_components/polymer/polymer.html">
+<link rel="import" href="/${id}/context-branch.html">
+
+<dom-module id="context-tree">
+
+    <template>
+        <div>
+            <context-branch id="topbranch" data="{{data}}"></context-branch>
+        </div>
+    </template>
+
+    <script>
+
+        Polymer({
+
+            is: 'context-tree',
+
+            properties: {
+                data: {
+                    type: Object,
+                    value: function () {
+                        return {};
+                    },
+                    observe: "_dataChanged"
+                },
+
+                selected: {
+                    type: Object,
+                    value: null
+                }
+            },
+
+            listeners: {
+                "context-branch-selected": "_selectBranch"
+            },
+
+            _dataChanged: function () {
+                this.$.topbranch.data = this.data;
+            },
+
+            _selectBranch: function (e) {
+                if (this.selected) {
+                    this.toggleClass("selected", false, this.selected);
+                }
+                this.selected = e.target;
+                this.toggleClass("selected", true, this.selected);
+            },
+
+            ready: function () {
+                this._dataChanged();
+            }
+
+        });
+
+    </script>
+
+</dom-module>

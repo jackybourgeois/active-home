@@ -1,0 +1,149 @@
+<link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/${id}/context-tree.html">
+
+<dom-module id="context-view">
+
+    <template>
+        <iron-ajax id="ajax"
+                   handle-as="json"
+                   on-response="handleResponse"></iron-ajax>
+        <context-tree id="ctxtree"
+                      style="position: absolute; width:300px;overflow: scroll"></context-tree>
+        <div style="margin-left: 320px; height: 200px;">
+            <schedule-view id="${node}.${id}-schedule-view"
+                           schedule="{{schedule}}"></schedule-view>
+        </div>
+
+    </template>
+
+    <script>
+        Polymer({
+            is: 'context-view',
+
+            listeners: {
+                "context-branch-selected": "loadPastFutureData"
+            },
+
+            ready: function () {
+                var comp = this;
+                if (document.querySelector("web-socket").loggedIn) {
+                    comp.loadContent();
+                    document.querySelector("web-socket").subscribe(comp.id, "*", comp);
+                }
+                window.addEventListener('websocket-loggedIn', function (e) {
+                    comp.loadContent();
+                    document.querySelector("web-socket").subscribe(comp.id, "*", comp);
+                });
+            },
+
+            loadContent: function () {
+                var ajax = this.$.ajax;
+                ajax.method = "GET";
+                ajax.url = "/${id}/getAllAvailableMetrics";
+                ajax.generateRequest();
+            },
+
+            updateAttributes: function (attrs) {
+
+            },
+
+            input: function (json) {
+                if (json.hasOwnProperty("content") && json.content.type.endsWith("DataPoint")) {
+                    this.updateDP(json.content);
+                }
+            },
+
+            updateDP: function(dp) {
+            },
+
+            handleResponse: function (e) {
+                if (e.detail.response.hasOwnProperty("type") && e.detail.response.type.endsWith("Schedule")) {
+                    this.schedule = e.detail.response;
+                } else {
+                    var data = e.detail.response;
+                    var ctxRoot = {"name": ".", "open": true, "shared": false, "children": [], "value": ""};
+                    for (var metric in data) {
+                        var versions = "";
+                        for (var version in data[metric]) {
+                            if (versions!="") versions += ",";
+                            versions += version;
+                        }
+                        this.addToTree("", metric.split("."), data[metric], versions, ctxRoot.children);
+                    }
+                    this.$.ctxtree.data = ctxRoot;
+                }
+            },
+
+            addToTree: function (path, pathArray, branchValue, versions, children) {
+                if (pathArray.length > 1) {
+                    var branch = pathArray.shift();
+                    var i = 0;
+                    while (i < children.length && children[i].name != branch) {
+                        i++;
+                    }
+                    if (i == children.length) {
+                        children.push({"name": branch,
+                            "open": true,
+                            "shared": false,
+                            "children": [],
+                            "value": {"0":""},
+                            "path": path + "." + branch,
+                            "version": versions});
+                    }
+                    this.addToTree(path + "." + branch, pathArray, branchValue, versions, children[i].children);
+                } else if (pathArray.length == 1) {
+                    var leaf = pathArray.shift();
+                    i = 0;
+                    while (i < children.length && children[i].name != leaf) {
+                        i++;
+                    }
+                    if (i == children.length) {
+                        children.push({
+                            "name": leaf,
+                            "open": true,
+                            "shared": false,
+                            "children": [],
+                            "value": branchValue,
+                            "path": path + "." + leaf,
+                            "versions": versions
+                        });
+                    } else {
+                        children[i].value = branchValue;
+                    }
+                }
+            },
+
+            loadPastFutureData(e) {
+                // view over 48h centred on current time
+                console.log(e.detail.data);
+                var duration = 2*86400000;
+                var start = document.querySelector("web-socket").getLocalTime() - 86400000;
+                var granularity = 3600000;
+
+                var ajax = this.$.ajax;
+                ajax.method = "POST";
+                ajax.url = "/${id}/extractSchedule/" + start + "/" + duration + "/" + granularity;
+                var metric = e.detail.data.path.substr(1);
+                if (e.detail.data.versions!="") {
+                    metric += "#" + e.detail.data.versions;
+                }
+                ajax.body = JSON.stringify({params: [metric]});
+                this.fire('sent-ajax', {url: ajax.url});
+                ajax.generateRequest();
+            },
+
+            guid: function () {
+                function s4() {
+                    return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+                }
+
+                return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+                        s4() + '-' + s4() + s4() + s4();
+            },
+
+            stop: function () {
+
+            }
+        });
+    </script>
+</dom-module>
