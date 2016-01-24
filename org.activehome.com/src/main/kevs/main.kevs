@@ -1,0 +1,28 @@
+add node0 : JavaNode/5.2.9
+add node0.console1, node0.console2 : ToyConsole/5.2.9
+
+add nodeServer : JavaNode/5.2.9
+add nodeServer.broadcaster : org.activehome.com.channel.WSBroadcaster
+set nodeServer.broadcaster.host = "localhost"
+
+add chan1 : RemoteWSChan
+set chan1.host = "localhost"
+set chan1.port = "9050"
+set chan1.uuid = "chan1"
+set chan1.path = "/activehome"
+
+add chan2 : RemoteWSChan
+set chan2.host = "localhost"
+set chan2.port = "9050"
+set chan2.uuid = "chan2"
+set chan2.path = "/activehome"
+
+bind node0.console1.showText chan1
+bind node0.console1.textEntered chan2
+bind node0.console2.textEntered chan1
+bind node0.console2.showText chan2
+
+add sync : WSGroup
+attach nodeServer sync
+set sync.master = "nodeServer"
+attach node0 sync
