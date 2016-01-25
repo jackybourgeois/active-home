@@ -26,12 +26,12 @@
 
     <licenses>
         <license>
-            <name>
-                GNU General Public License (GPL) version 3.0
-            </name>
+            <name>GNU General Public License (GPL) version 3.0</name>
             <url>http://www.gnu.org/licenses/gpl.html</url>
         </license>
     </licenses>
+
+    <inceptionYear>2016</inceptionYear>
 
     <developers>
         <developer>
@@ -72,6 +72,7 @@
         <jdk.target>1.8</jdk.target>
         <kevoree.log.version>1</kevoree.log.version>
         <kevoree.kcl.version>19</kevoree.kcl.version>
+        <license.licenseName>gpl_v3</license.licenseName>
     </properties>
 
     <dependencies>
@@ -150,21 +151,25 @@
                 <configuration>
                     <verbose>false</verbose>
                     <addSvnKeyWords>true</addSvnKeyWords>
+                    <includes>
+                        <include>**/*.java</include>
+                    </includes>
                 </configuration>
                 <executions>
                     <execution>
-                        <id>first</id>
+                        <id>generate-license-headers</id>
                         <goals>
                             <goal>update-file-header</goal>
                         </goals>
                         <phase>process-sources</phase>
                         <configuration>
-                            <licenseName>gpl_v2</licenseName>
+                            <licenseName>gpl_v3</licenseName>
                             <organizationName>org.activehome</organizationName>
                             <inceptionYear>2016</inceptionYear>
-                            <includes>
-                                <include>*.java</include>
-                            </includes>
+                            <roots>
+                                <root>src/main/java</root>
+                                <root>src/test/java</root>
+                            </roots>
                         </configuration>
                     </execution>
                 </executions>
