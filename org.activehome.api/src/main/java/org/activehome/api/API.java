@@ -80,7 +80,8 @@ public abstract class API extends Service implements RequestHandler {
      * @param message  The message (Request, Response or Notif)
      * @param callback The request callback
      */
-    public final void sendToUser(final Message message, final RequestCallback callback) {
+    public final void sendToUser(final Message message,
+                                 final RequestCallback callback) {
         if (pushToUser != null && pushToUser.getConnectedBindingsSize() > 0) {
             if (message instanceof Request && callback != null) {
                 getWaitingRequest().put(message.getId(), callback);

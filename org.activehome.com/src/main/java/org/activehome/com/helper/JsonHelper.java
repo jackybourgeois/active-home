@@ -176,12 +176,6 @@ public final class JsonHelper {
             } catch (InstantiationException | IllegalAccessException
                     | ClassNotFoundException | NoSuchMethodException
                     | InvocationTargetException e) {
-//                Log.debug("jsonToObject - Unknown class " + json.asObject().get("type").asString());
-//                if (classLoader!=null) {
-//                    Log.debug("Class loader from: " + classLoader.getClass().getName());
-//                } else {
-//                    Log.debug("Class loader on current thread: " + ClassLoader.getSystemClassLoader());
-//                }
             }
         }
 

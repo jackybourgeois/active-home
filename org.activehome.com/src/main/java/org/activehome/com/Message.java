@@ -55,11 +55,11 @@ public abstract class Message implements Serializable {
      */
     private final long ts;
     /**
-     * The sequence that includes this request
+     * The sequence that includes this request.
      */
     private String sequence = "";
     /**
-     * The sequence number
+     * The sequence number.
      */
     private long sequenceNumber = -1;
 
