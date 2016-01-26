@@ -127,9 +127,7 @@
         </pluginRepository>
     </pluginRepositories>
 
-
     <build>
-
         <plugins>
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
@@ -153,6 +151,7 @@
                     <addSvnKeyWords>true</addSvnKeyWords>
                     <includes>
                         <include>**/*.java</include>
+                        <include>**/*.html</include>
                     </includes>
                 </configuration>
                 <executions>
@@ -168,6 +167,7 @@
                             <inceptionYear>2016</inceptionYear>
                             <roots>
                                 <root>src/main/java</root>
+                                <root>src/main/resources</root>
                                 <root>src/test/java</root>
                             </roots>
                         </configuration>
