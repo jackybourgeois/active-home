@@ -48,7 +48,6 @@ public abstract class Appliance extends IO {
     @Param(defaultValue = "false")
     private boolean isReducible;
 
-
     /**
      * Threshold to detect if the appliance is active (ON).
      */
