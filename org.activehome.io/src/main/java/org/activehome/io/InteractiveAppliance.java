@@ -33,7 +33,7 @@ import org.kevoree.annotation.Param;
  * @version %I%, %G%
  */
 @ComponentType
-public class InteractiveAppliance extends Appliance {
+public abstract class InteractiveAppliance extends Appliance {
 
     /**
      * The usage of the interactive appliance can

@@ -32,5 +32,5 @@ import org.kevoree.annotation.ComponentType;
  * @version %I%, %G%
  */
 @ComponentType
-public class MicroGeneration extends IO {
+public abstract class MicroGeneration extends IO {
 }

@@ -33,7 +33,7 @@ import org.kevoree.annotation.Param;
  * @version %I%, %G%
  */
 @ComponentType
-public class BackgroundAppliance extends Appliance {
+public abstract class BackgroundAppliance extends Appliance {
 
     /**
      * SVG image path
