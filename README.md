@@ -6,9 +6,7 @@ a distributed system that can be used for real world environment or simulation.
 
 ![Active Home icon](https://raw.github.com/jackybourgeois/activehome/master/docs/branding/favicon-194x194.png)
 
-[Active Home Website](http://active-home.org)
-
-[Component Catalog](http://active-home.org/store)
+[Active Home Website](http://active-home.org) - [Component Catalog](http://active-home.org/store)
 
 ## Get Started
 
