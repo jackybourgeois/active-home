@@ -10,15 +10,16 @@ a distributed system that can be used for real world environment or simulation.
 
 ![Component Catalog](http://active-home.org/store)
 
+## Get Started
+
+
+
 ## Components
 
-* ![API](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.api/docs/api.md)
-* ![IO](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.io/docs/io.md)
-* ![Service](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.service/docs/service.md)
-* ![User](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.user/docs/user.md)
-* ![Service](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.service/docs/service.md)
-
-
+* ![API](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.api/docs/api.md)
+* ![IO](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.io/docs/io.md)
+* ![Service](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.service/docs/service.md)
+* ![User](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md)
 
 ## Communication between component
 
