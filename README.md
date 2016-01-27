@@ -12,14 +12,27 @@ a distributed system that can be used for real world environment or simulation.
 
 ## Get Started
 
+## Time
 
+More detail on the ![TimeControlled(https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md) page.
 
-## Components
+## User
+
+More detail on the ![User](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md) page.
+
+## IO
+
+More detail on the  ![IO](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.io/docs/io.md) page.
+
+## Service
+
+![Service](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.service/docs/service.md)
 
 * ![API](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.api/docs/api.md)
-* ![IO](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.io/docs/io.md)
-* ![Service](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.service/docs/service.md)
-* ![User](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md)
+* ![Context](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.context/docs/context.md)
+* ![Translator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.translator/docs/translator.md)
+* ![Predictor](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.predictor/docs/predictor.md)
+* ![Evaluator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.evaluator/docs/evaluator.md)
 
 ## Communication between component
 
