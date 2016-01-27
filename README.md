@@ -6,41 +6,39 @@ a distributed system that can be used for real world environment or simulation.
 
 ![Active Home icon](https://raw.github.com/jackybourgeois/activehome/master/docs/branding/favicon-194x194.png)
 
-![Active Home Website](http://active-home.org)
-
-![Component Catalog](http://active-home.org/store)
+[Active Home Website](http://active-home.org) - [Component Catalog](http://active-home.org/store)
 
 ## Get Started
 
 ## Time
 
-More detail on the ![TimeControlled(https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md) page.
+More detail on the [TimeControlled](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.time/docs/timeControlled.md) page.
 
 ## User
 
-More detail on the ![User](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md) page.
+More detail on the [User](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md) page.
 
 ## IO
 
-More detail on the  ![IO](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.io/docs/io.md) page.
+More detail on the  [IO](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.io/docs/io.md) page.
 
 ## Service
 
-![Service](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.service/docs/service.md)
+[Service](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.service/docs/service.md)
 
-* ![API](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.api/docs/api.md)
-* ![Context](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.context/docs/context.md)
-* ![Translator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.translator/docs/translator.md)
-* ![Predictor](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.predictor/docs/predictor.md)
-* ![Evaluator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.evaluator/docs/evaluator.md)
+* [API](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.api/docs/api.md)
+* [Context](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.context/docs/context.md)
+* [Translator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.translator/docs/translator.md)
+* [Predictor](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.predictor/docs/predictor.md)
+* [Evaluator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.evaluator/docs/evaluator.md)
 
 ## Communication between component
 
-More detail on the ![Com](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.com/docs/com.md) page.
+More detail on the [Com](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.com/docs/com.md) page.
 
 ## Technologies
 
-This project relies on ![Kevoree](http://kevoree.org) and ![Polymer](https://www.polymer-project.org/1.0/).
+This project relies on [Kevoree](http://kevoree.org) and [Polymer](https://www.polymer-project.org/1.0/).
 
 Although all of the current components are implemented in Java, Kevoree support several other languages including
 Javascript and C&#35;.
