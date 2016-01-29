@@ -6,7 +6,7 @@ package org.activehome.time;
  * $Id:$
  * $HeadURL:$
  * %%
- * Copyright (C) 2016 org.active-home
+ * Copyright (C) 2016 Active Home Project
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
