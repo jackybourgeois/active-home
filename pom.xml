@@ -4,13 +4,13 @@
          xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
     <modelVersion>4.0.0</modelVersion>
-    <groupId>org.activehome</groupId>
-    <artifactId>org.activehome</artifactId>
+    <groupId>org.active-home</groupId>
+    <artifactId>org.active-home</artifactId>
     <version>0.0.1-SNAPSHOT</version>
     <packaging>pom</packaging>
     <name>Active Home</name>
     <description>Active Home</description>
-    <url>https://active-home.org</url>
+    <url>http://active-home.org</url>
 
     <organization>
         <name>Active Home Project</name>
@@ -18,9 +18,9 @@
     </organization>
 
     <scm>
-        <connection>scm:git:git@github.com:jackybourgeois/activehome.git</connection>
-        <developerConnection>scm:git:git@github.com:jackybourgeois/activehome.git</developerConnection>
-        <url>http://github.com/jackybourgeois/activehome.git</url>
+        <connection>scm:git:git@github.com:jackybourgeois/active-home.git</connection>
+        <developerConnection>scm:git:git@github.com:jackybourgeois/active-home.git</developerConnection>
+        <url>http://github.com/jackybourgeois/active-home.git</url>
         <tag>HEAD</tag>
     </scm>
 
@@ -47,21 +47,21 @@
     </developers>
 
     <modules>
-        <module>org.activehome.api</module>
-        <module>org.activehome.tools</module>
-        <module>org.activehome.com</module>
-        <module>org.activehome.context</module>
-        <module>org.activehome.user</module>
-        <module>org.activehome.service</module>
-        <module>org.activehome.io</module>
-        <module>org.activehome.translator</module>
-        <module>org.activehome.time</module>
-        <module>org.activehome.core</module>
-        <module>org.activehome.test</module>
-        <module>org.activehome.mysql</module>
-        <module>org.activehome.predictor</module>
-        <module>org.activehome.svg</module>
-        <module>org.activehome.evaluator</module>
+        <module>org.active-home.api</module>
+        <module>org.active-home.tools</module>
+        <module>org.active-home.com</module>
+        <module>org.active-home.context</module>
+        <module>org.active-home.user</module>
+        <module>org.active-home.service</module>
+        <module>org.active-home.io</module>
+        <module>org.active-home.translator</module>
+        <module>org.active-home.time</module>
+        <module>org.active-home.core</module>
+        <module>org.active-home.test</module>
+        <module>org.active-home.mysql</module>
+        <module>org.active-home.predictor</module>
+        <module>org.active-home.svg</module>
+        <module>org.active-home.evaluator</module>
     </modules>
 
     <properties>
@@ -110,14 +110,6 @@
             <id>kevoree-oss</id>
             <url>https://oss.sonatype.org/content/groups/public/</url>
         </repository>
-        <repository>
-            <id>active-home-snapshots</id>
-            <url>http://active-home.org:8080/maven/snapshots/</url>
-        </repository>
-        <repository>
-            <id>active-home-internal</id>
-            <url>http://active-home.org:8080/maven/internal/</url>
-        </repository>
     </repositories>
 
     <pluginRepositories>
@@ -163,7 +155,7 @@
                         <phase>process-sources</phase>
                         <configuration>
                             <licenseName>gpl_v3</licenseName>
-                            <organizationName>org.activehome</organizationName>
+                            <organizationName>org.active-home</organizationName>
                             <inceptionYear>2016</inceptionYear>
                             <roots>
                                 <root>src/main/java</root>
