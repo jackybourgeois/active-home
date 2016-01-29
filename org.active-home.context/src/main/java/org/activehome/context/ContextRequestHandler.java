@@ -97,8 +97,9 @@ public class ContextRequestHandler implements RequestHandler {
     }
 
     /**
-     * @return Json containing all the available metrics
-     * with their values
+     *
+     * @param callback Json containing all the available metrics
+     *                 with their values
      */
     public final void getAllAvailableMetrics(final RequestCallback callback) {
         JsonObject json = new JsonObject();
@@ -154,7 +155,7 @@ public class ContextRequestHandler implements RequestHandler {
                                       final double granularity,
                                       final String[] metricArray,
                                       final RequestCallback callback) {
-        service.extractSchedule((long)start, (long)duration, (long)granularity, metricArray, callback);
+        service.extractSchedule((long) start, (long) duration, (long) granularity, metricArray, callback);
     }
 
     public final boolean addTriggers(final Trigger[] triggerArray) {

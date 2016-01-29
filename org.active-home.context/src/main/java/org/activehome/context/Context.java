@@ -486,6 +486,7 @@ public abstract class Context extends Service {
      * Notify all registered destination.
      *
      * @param metric  The metric that changed, to notify to subscriber
+     * @param version The metric's version
      * @param content The new content to notify to subscriber
      */
     public final void notify(final String metric,
