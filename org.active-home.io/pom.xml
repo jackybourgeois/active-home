@@ -3,7 +3,7 @@
     <parent>
         <artifactId>org.active-home</artifactId>
         <groupId>org.active-home</groupId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
         <relativePath>../pom.xml</relativePath>
     </parent>
 
@@ -16,7 +16,7 @@
         <dependency>
             <groupId>org.active-home</groupId>
             <artifactId>org.active-home.time</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

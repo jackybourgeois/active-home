@@ -3,7 +3,7 @@
     <parent>
         <artifactId>org.active-home</artifactId>
         <groupId>org.active-home</groupId>
-        <version>0.0.2-SNAPSHOT</version>
+        <version>0.0.3-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
@@ -15,12 +15,12 @@
         <dependency>
             <groupId>org.active-home</groupId>
             <artifactId>org.active-home.context</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.active-home</groupId>
             <artifactId>org.active-home.translator</artifactId>
-            <version>0.0.2-SNAPSHOT</version>
+            <version>0.0.3-SNAPSHOT</version>
         </dependency>
     </dependencies>
 

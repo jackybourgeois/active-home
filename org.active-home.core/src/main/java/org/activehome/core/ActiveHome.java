@@ -191,7 +191,7 @@ public class ActiveHome implements ModelListener {
                 + "bind {node}.auth.getResponse chan_pushResponse_linker";
 
         script = script.replaceAll("\\{node\\}", context.getNodeName())
-                        .replaceAll("\\{ah\\.version\\}", "0.0.2-SNAPSHOT");
+                        .replaceAll("\\{ah\\.version\\}", "0.0.3-SNAPSHOT");
 
         modelService.submitScript(script, applied -> Log.info("Model updated after loading ActiveHome core: " + applied));
 
