@@ -3,12 +3,12 @@
     <parent>
         <artifactId>org.active-home</artifactId>
         <groupId>org.active-home</groupId>
-        <version>0.0.1-SNAPSHOT</version>
+        <version>0.0.2-SNAPSHOT</version>
     </parent>
 
     <modelVersion>4.0.0</modelVersion>
     <artifactId>org.active-home.test</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
+    <version>0.0.2-SNAPSHOT</version>
     <packaging>jar</packaging>
     <name>Active Home :: Test</name>
 
@@ -16,12 +16,12 @@
         <dependency>
             <groupId>org.active-home</groupId>
             <artifactId>org.active-home.service</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>org.active-home</groupId>
             <artifactId>org.active-home.context</artifactId>
-            <version>0.0.1-SNAPSHOT</version>
+            <version>0.0.2-SNAPSHOT</version>
         </dependency>
     </dependencies>
 
