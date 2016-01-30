@@ -43,13 +43,16 @@ import java.util.LinkedList;
 import java.util.UUID;
 
 /**
- * The User represents the user as a component in the system.
- *
  * @author Jacky Bourgeois
  * @version %I%, %G%
  */
 @ComponentType
 public class User extends TimeControlled {
+
+    @Param(defaultValue = "The hub between the physical user and the system.")
+    private String description;
+    @Param(defaultValue = "/active-home/tree/master/org.active-home.user")
+    private String src;
 
     /**
      * The necessary bindings.
