@@ -1,7 +1,5 @@
 # Overview
 
-## Get Started
-
 ## Time
 
 More detail on the [TimeControlled](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.time/docs/timeControlled.md) page.
