@@ -33,9 +33,3 @@ This project relies on [Kevoree](http://kevoree.org) and [Polymer](https://www.p
 Although all of the current components are implemented in Java, Kevoree support several other languages including
 Javascript and C&#35;.
 
-## Who are we?
-
-Active Home is mainly designed and developed by Jacky Bourgeois, supported by The Open University, 
-l'Universit de Rennes 1 and INRIA Rennes DiverSE research group.
-
-![Institute icon](https://raw.github.com/jackybourgeois/activehome/master/docs/institute.png)
