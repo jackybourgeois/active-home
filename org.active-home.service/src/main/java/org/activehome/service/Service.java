@@ -26,10 +26,7 @@ package org.activehome.service;
 
 
 import com.eclipsesource.json.JsonObject;
-import org.activehome.com.Notif;
-import org.activehome.com.Request;
-import org.activehome.com.RequestCallback;
-import org.activehome.com.Response;
+import org.activehome.com.*;
 import org.activehome.com.error.ErrorType;
 import org.activehome.com.error.Error;
 import org.activehome.time.TimeControlled;
@@ -432,6 +429,17 @@ public abstract class Service extends TimeControlled implements ModelListener {
     }
 
     /**
+     * set a listener on a specific API
+     */
+    protected void listenAPI(final String apiFullId,
+                             final String handler,
+                             final boolean authentication) {
+        sendRequest(new Request(getFullId(), apiFullId, getCurrentTime(),
+                        "addHandler", new Object[]{handler, getFullId(), authentication}),
+                new ShowIfErrorCallback());
+    }
+
+    /**
      * Push an object into an object array.
      *
      * @param array The origin array
@@ -457,11 +465,11 @@ public abstract class Service extends TimeControlled implements ModelListener {
         return out;
     }
 
-    protected final void logInfo(String log) {
+    public final void logInfo(String log) {
         Log.info("[" + getFullId() + " - " + strLocalTime() + "] " + log);
     }
 
-    protected final void logError(String log) {
+    public final void logError(String log) {
         Log.error("[" + getFullId() + " - " + strLocalTime() + "] " + log);
     }
 
