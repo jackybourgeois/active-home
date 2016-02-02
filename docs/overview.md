@@ -1,41 +1,33 @@
-# Overview
+Active Home is a library of software components to support the deployement and simulation of domestic energy management systems. These components are designed to promote user interaction, research collaboration and participatory design. This library relies on the interactive Demand-Shifting (iDS) framework.
 
-## Time
+This project relies on [Kevoree](http://kevoree.org) and [Polymer](https://www.polymer-project.org/1.0/). Although all of the current components are implemented in Java, Kevoree support several other languages including JavaScript and C&#35;.
 
-More detail on the [TimeControlled](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.time/docs/timeControlled.md) page.
+# Research Collaboration
 
-## User
+The research and design of domestic energy management systems goes well beyond the boundary of a single domain. It requires to combined skills from ethnography to machine learning and energy policies. In order to promote the collaboration between all these domain, Active Home takes the advantage of the component-based approach to offer a platform where all these pieces of knowledge can be deployed, tested and combined together. Depending on the stage of each tested element, this deployments and tests can be performed in a real world setting or in a simulated environment.
 
-More detail on the [User](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.user/docs/user.md) page.
+## Real world deployment
 
-## IO
 
-More detail on the  [IO](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.io/docs/io.md) page.
+## Simulation
 
-## Service
 
-[Service](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.service/docs/service.md)
+# User interaction
 
-* [API](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.api/docs/api.md)
-* [Context](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.context/docs/context.md)
-* [Translator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.translator/docs/translator.md)
-* [Predictor](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.predictor/docs/predictor.md)
-* [Evaluator](https://github.com/jackybourgeois/activehome/blob/master/org.activehome.evaluator/docs/evaluator.md)
+In the design of a self-adaptive system
 
-## Communication between component
 
-More detail on the [Com](https://raw.github.com/jackybourgeois/activehome/master/org.activehome.com/docs/com.md) page.
 
-## Technologies
+# Participatory Design
 
-This project relies on [Kevoree](http://kevoree.org) and [Polymer](https://www.polymer-project.org/1.0/).
+The component-based approach allows to deploy a personalized set of components in each households.
 
-Although all of the current components are implemented in Java, Kevoree support several other languages including
-Javascript and C&#35;.
 
-## Who are we?
 
-Active Home is mainly designed and developed by Jacky Bourgeois, supported by The Open University, 
-l'Universit de Rennes 1 and INRIA Rennes DiverSE research group.
 
-![Institute icon](https://raw.github.com/jackybourgeois/activehome/master/docs/institute.png)
+
+
+
+
+
+
