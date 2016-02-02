@@ -36,22 +36,30 @@ import java.util.HashMap;
  */
 public class EvaluationReport {
 
+    private String evaluatorName;
     private HashMap<String, String> reportedMetrics;
     private Schedule schedule;
 
-    public EvaluationReport(final HashMap<String, String> theReportedMetrics,
+    public EvaluationReport(final String evaluatorName,
+                            final HashMap<String, String> theReportedMetrics,
                             final Schedule theSchedule) {
+        this.evaluatorName = evaluatorName;
         reportedMetrics = theReportedMetrics;
         schedule = theSchedule;
     }
 
     public EvaluationReport(final JsonObject json) {
+        evaluatorName = json.getString("evaluatorName","");
         reportedMetrics = new HashMap<>();
         for (String name : json.get("reportedMetrics").asObject().names()) {
             reportedMetrics.put(name, json.get("reportedMetrics")
                     .asObject().get(name).asString());
         }
         schedule = new Schedule(json.get("schedule").asObject());
+    }
+
+    public String getEvaluatorName() {
+        return evaluatorName;
     }
 
     public HashMap<String, String> getReportedMetrics() {
@@ -71,6 +79,7 @@ public class EvaluationReport {
         JsonObject json = new JsonObject();
 
         json.add("type", EvaluationReport.class.getName());
+        json.add("evaluatorName", evaluatorName);
         json.add("schedule", schedule.toJson());
 
         JsonObject map = new JsonObject();
