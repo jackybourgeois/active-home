@@ -25,6 +25,7 @@ package org.activehome.evaluator;
  */
 
 
+import org.activehome.com.Notif;
 import org.activehome.com.Request;
 import org.activehome.com.RequestCallback;
 import org.activehome.com.ShowIfErrorCallback;
@@ -32,6 +33,7 @@ import org.activehome.service.RequestHandler;
 import org.activehome.service.Service;
 import org.activehome.tools.Convert;
 import org.kevoree.annotation.ComponentType;
+import org.kevoree.annotation.Output;
 import org.kevoree.annotation.Param;
 
 import java.util.concurrent.ScheduledThreadPoolExecutor;
@@ -57,6 +59,11 @@ public abstract class Evaluator extends Service {
      */
     @Param(defaultValue = "1d")
     private String defaultHorizon;
+    /**
+     * Push any new pushReport
+     */
+    @Output
+    private org.kevoree.api.Port pushReport;
 
     /**
      * Scheduler for regular evaluation.
@@ -126,7 +133,7 @@ public abstract class Evaluator extends Service {
     // evaluation
 
     private void evaluate() {
-        long midnight = getLocalTime() - getLocalTime()%DAY - HOUR*getTic().getTimezone();
+        long midnight = getLocalTime() - getLocalTime() % DAY - HOUR * getTic().getTimezone();
         evaluate(midnight - Convert.strDurationToMillisec(defaultHorizon),
                 midnight, new ShowIfErrorCallback());
     }
@@ -146,14 +153,26 @@ public abstract class Evaluator extends Service {
         return new EvaluatorRequestHandler(request, this);
     }
 
-    private  void initExecutor() {
+    private void initExecutor() {
         stpe = new ScheduledThreadPoolExecutor(1, r -> {
             return new Thread(r, getFullId() + "-evaluation-pool");
         });
     }
 
-    public  String getDefaultHorizon() {
+    public String getDefaultHorizon() {
         return defaultHorizon;
+    }
+
+    /**
+     * Send Notif on pushReport with the given report.
+     *
+     * @param report the report to publish
+     */
+    public final void publishReport(final EvaluationReport report) {
+        if (pushReport != null && pushReport.getConnectedBindingsSize() > 0) {
+            Notif reportNotif = new Notif(getFullId(), "*", getCurrentTime(), report);
+            pushReport.send(reportNotif.toString(), null);
+        }
     }
 
 
