@@ -26,6 +26,8 @@
 <link rel="import" href="/bower_components/paper-button/paper-button.html">
 <link rel="import" href="/bower_components/iron-icon/iron-icon.html">
 <link rel="import" href="/bower_components/iron-icons/iron-icons.html">
+<link rel="import" href="/bower_components/active-home-branding/loading-spinner.html">
+
 
 <dom-module id="schedule-view">
 
@@ -41,6 +43,7 @@
             }
         </style>
 
+        <loading-spinner id="spinner"></loading-spinner>
         <iron-ajax id="ajax" handle-as="json" on-response="handleResponse"></iron-ajax>
         <google-legacy-loader on-api-load="readyForAction"></google-legacy-loader>
 
@@ -51,14 +54,12 @@
         </paper-button>
 
         <paper-button id="1y-zoom-bt" raised style="width: 40px;" on-click="zoom">1y</paper-button>
-        <paper-button id="6m-zoom-bt" raised style="width: 40px;" on-click="zoom">6m</paper-button>
         <paper-button id="3m-zoom-bt" raised style="width: 40px;" on-click="zoom">3m</paper-button>
         <paper-button id="1m-zoom-bt" raised style="width: 40px;" on-click="zoom">1m</paper-button>
         <paper-button id="1w-zoom-bt" raised style="width: 40px;" on-click="zoom">1w</paper-button>
         <paper-button id="2d-zoom-bt" raised style="width: 40px;" on-click="zoom">2d</paper-button>
         <paper-button id="1d-zoom-bt" raised style="width: 40px;" on-click="zoom">1d</paper-button>
         <paper-button id="6h-zoom-bt" raised style="width: 40px;" on-click="zoom">6h</paper-button>
-        <paper-button id="3h-zoom-bt" raised style="width: 40px;" on-click="zoom">3h</paper-button>
         <paper-button id="now-bt" raised on-click="now">now</paper-button>
 
 
@@ -84,19 +85,16 @@
                     value: "Schedule"
                 },
                 metrics: {
-                    type: String,
-                    value: "",
-                    observer: "loadContent"
+                    type: Array,
+                    value: []
                 },
                 start: {
                     type: Number,
-                    value: 0,
-                    observer: "loadContent"
+                    value: 0
                 },
                 horizon: {
                     type: Number,
-                    value: 86400000,
-                    observer: "loadContent"
+                    value: 86400000
                 },
                 granularity: {
                     type: Number,
@@ -122,17 +120,16 @@
 
             ready: function () {
                 if (this.schedule != null) {
-                    displaySchedule();
+                    this.displaySchedule();
                 } else {
                     this.loadContent();
                 }
             },
 
             loadContent: function () {
-                if (this.metrics != "") {
-                    var metricArray = this.metrics.split(",");
-                    for (var key in metricArray) {
-                        document.querySelector("web-socket").subscribe(this.id, metricArray[key], this);
+                if (this.metrics.length > 0) {
+                    for (var key in this.metrics) {
+                        document.querySelector("web-socket").subscribe(this.id, this.metrics[key], this);
                     }
                     var startTS = this.start;
                     if (startTS == 0) {
@@ -141,36 +138,41 @@
                     var ajax = this.$.ajax;
                     ajax.method = "POST";
                     ajax.url = "/context/extractSchedule/" + startTS + "/" + this.horizon + "/" + this.granularity;
-                    ajax.body = JSON.stringify({params: metricArray});
+                    ajax.body = JSON.stringify({params: this.metrics});
                     this.fire('sent-ajax', {url: ajax.url, body: ajax.body});
                     ajax.generateRequest();
+                    this.$.spinner.display();
                 }
             },
 
-            shiftRight: function(e) {
-                if (this.start==0) {
+            shiftRight: function (e) {
+                if (this.start == 0) {
                     this.start = document.querySelector("web-socket").time.ts + this.horizon;
                 } else {
                     this.start += this.horizon;
                 }
+                this.loadContent();
             },
 
-            shiftLeft: function(e) {
-                if(this.start==0) {
+            shiftLeft: function (e) {
+                if (this.start == 0) {
                     this.start = document.querySelector("web-socket").time.ts - this.horizon;
                 } else {
                     this.start -= this.horizon;
                 }
+                this.loadContent();
             },
 
-            zoom: function(e) {
-                console.log(e);
-                var newHorizon = this.convert(e.srcElement.id.split("-")[0]);
-                console.log(newHorizon);
-                this.horizon = newHorizon;
+            zoom: function (e) {
+                var target = e.srcElement;
+                if (target == undefined) {
+                    target = e.target;
+                }
+                this.horizon = this.convert(e.srcElement.id.split("-")[0]);
+                this.loadContent();
             },
 
-            now: function() {
+            now: function () {
                 this.start = 0;
             },
 
@@ -210,11 +212,33 @@
             },
 
             displaySchedule: function () {
+                if (this.schedule!=null) {
+                    this.metrics = [];
+                    for (var i in this.schedule.mr) {
+                        var mr = this.schedule.mr[i];
+                        var metric = mr.metricId;
+                        var firstVers = true;
+                        for (version in mr.records) {
+                            if (firstVers) {
+                                metric += "#" + version;
+                                firstVers = false;
+                            } else {
+                                metric += "," + version;
+                            }
+                        }
+                        this.metrics.push(metric);
+                    }
+                    this.start = this.schedule.start;
+                    this.horizon = this.schedule.horizon;
+                }
+
                 if (this.isReady) {
                     this.$.scheduleDiv.innerHTML = "";
                     for (var i in this.schedule.mr) {
                         var mr = this.schedule.mr[i];
-                        var number = mr.records[mr.mainVersion].length > 0
+
+                        var number = mr.records[mr.mainVersion] != undefined
+                                && mr.records[mr.mainVersion].length > 0
                                 && this.isNumeric(mr.records[mr.mainVersion][0].value);
 
                         var mrContainer = document.createElement("div");
@@ -242,6 +266,7 @@
                             this.drawTimeLine(container, mr, mrNav);
                         }
                     }
+                    this.$.spinner.hide();
                 }
             },
 
@@ -252,7 +277,26 @@
                     title: title,
                     legend: {position: 'bottom'},
                     bar: {groupWidth: '90%'},
-                    backgroundColor: 'transparent'
+                    backgroundColor: 'transparent',
+                    hAxis: {
+                        viewWindow: {
+                            max: new Date(this.start + this.horizon),
+                            min: new Date(this.start)
+                        },
+                        gridlines: {
+                            count: -1,
+                            units: {
+                                days: {format: ['MMM dd']},
+                                hours: {format: ['HH:mm', 'ha']},
+                            }
+                        },
+                        minorGridlines: {
+                            units: {
+                                hours: {format: ['hh:mm:ss a', 'ha']},
+                                minutes: {format: ['HH:mm a Z', ':mm']}
+                            }
+                        }
+                    }
                 };
                 var dataArray = [['Time']];
                 var nextIndex = {};
@@ -320,7 +364,26 @@
                 var options = {
                     title: mr.metricId + " (Continuous)",
                     legend: {position: 'bottom'},
-                    backgroundColor: 'transparent'
+                    backgroundColor: 'transparent',
+                    hAxis: {
+                        viewWindow: {
+                            max: new Date(this.start + this.horizon),
+                            min: new Date(this.start)
+                        },
+                        gridlines: {
+                            count: -1,
+                            units: {
+                                days: {format: ['MMM dd']},
+                                hours: {format: ['HH:mm', 'ha']},
+                            }
+                        },
+                        minorGridlines: {
+                            units: {
+                                hours: {format: ['hh:mm:ss a', 'ha']},
+                                minutes: {format: ['HH:mm a Z', ':mm']}
+                            }
+                        }
+                    }
                 };
                 var dataArray = [['Time']];
                 var nextIndex = {};
@@ -330,13 +393,51 @@
                     nextIndex[version] = 0;
                 }
 
-                var nextTS = mr.start;
+                if (Object.keys(nextIndex).length>0) {
+                    var nextTS = mr.start;
 
-                while (ts < nextTS) {
-                    ts = nextTS;
+                    while (ts < nextTS) {
+                        ts = nextTS;
 
-                    if (ts > mr.start) {
-                        row = [new Date(ts - timezone - 1)];
+                        if (ts > mr.start) {
+                            row = [new Date(ts - timezone - 1)];
+                            for (var i in nextIndex) {
+                                if (nextIndex[i] == 0 || nextIndex[i] == -1) {
+                                    row.push(null);
+                                } else {
+                                    row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
+                                }
+                            }
+                            dataArray.push(row);
+                        }
+
+                        var row = [new Date(ts - timezone)];
+                        for (var i in nextIndex) {
+                            if (nextIndex[i] != -1 && mr.start + mr.records[i][nextIndex[i]].ts == ts) {
+                                row.push(parseFloat(mr.records[i][nextIndex[i]].value));
+                                if (nextIndex[i] < mr.records[i].length - 1) {
+                                    nextIndex[i]++;
+                                } else {
+                                    nextIndex[i] = -1;
+                                }
+                            } else if (nextIndex[i] == 0 || nextIndex[i] == -1) {
+                                row.push(null);
+                            } else {
+                                row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
+                            }
+                            if (nextIndex[i] != -1) {
+                                if ((ts == nextTS && nextTS < mr.start + mr.records[i][nextIndex[i]].ts) ||
+                                        nextTS > mr.start + mr.records[i][nextIndex[i]].ts) {
+                                    nextTS = mr.start + mr.records[i][nextIndex[i]].ts;
+                                }
+                            }
+
+                        }
+                        dataArray.push(row);
+                    }
+
+                    if (ts < mr.start + mr.timeFrame) {
+                        var row = [new Date(mr.start + mr.timeFrame - timezone)];
                         for (var i in nextIndex) {
                             if (nextIndex[i] == 0 || nextIndex[i] == -1) {
                                 row.push(null);
@@ -346,42 +447,6 @@
                         }
                         dataArray.push(row);
                     }
-
-                    var row = [new Date(ts - timezone)];
-                    for (var i in nextIndex) {
-                        if (nextIndex[i] != -1 && mr.start + mr.records[i][nextIndex[i]].ts == ts) {
-                            row.push(parseFloat(mr.records[i][nextIndex[i]].value));
-                            if (nextIndex[i] < mr.records[i].length - 1) {
-                                nextIndex[i]++;
-                            } else {
-                                nextIndex[i] = -1;
-                            }
-                        } else if (nextIndex[i] == 0 || nextIndex[i] == -1) {
-                            row.push(null);
-                        } else {
-                            row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
-                        }
-                        if (nextIndex[i] != -1) {
-                            if ((ts == nextTS && nextTS < mr.start + mr.records[i][nextIndex[i]].ts) ||
-                                    nextTS > mr.start + mr.records[i][nextIndex[i]].ts) {
-                                nextTS = mr.start + mr.records[i][nextIndex[i]].ts;
-                            }
-                        }
-
-                    }
-                    dataArray.push(row);
-                }
-
-                if (ts < mr.start + mr.timeFrame) {
-                    var row = [new Date(mr.start + mr.timeFrame - timezone)];
-                    for (var i in nextIndex) {
-                        if (nextIndex[i] == 0 || nextIndex[i] == -1) {
-                            row.push(null);
-                        } else {
-                            row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
-                        }
-                    }
-                    dataArray.push(row);
                 }
 
                 // keep these rows without header to redraw later
@@ -435,17 +500,17 @@
                 document.querySelector("web-socket").unsubscribe(this.id);
             },
 
-            convert: function(strHorizon) {
+            convert: function (strHorizon) {
                 if (strHorizon.endsWith("y")) {
-                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*31540000000;
+                    return parseFloat(strHorizon.substr(0, strHorizon.length - 1)) * 31540000000;
                 } else if (strHorizon.endsWith("m")) {
-                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*2628000000;
+                    return parseFloat(strHorizon.substr(0, strHorizon.length - 1)) * 2628000000;
                 } else if (strHorizon.endsWith("w")) {
-                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*604800000;
+                    return parseFloat(strHorizon.substr(0, strHorizon.length - 1)) * 604800000;
                 } else if (strHorizon.endsWith("d")) {
-                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*86400000;
+                    return parseFloat(strHorizon.substr(0, strHorizon.length - 1)) * 86400000;
                 } else if (strHorizon.endsWith("h")) {
-                    return parseFloat(strHorizon.substr(0, strHorizon.length-2))*3600000;
+                    return parseFloat(strHorizon.substr(0, strHorizon.length - 1)) * 3600000;
                 }
                 return 0;
             }

@@ -22,16 +22,18 @@
   #L%
   -->
 <link rel="import" href="/bower_components/iron-ajax/iron-ajax.html">
+<link rel="import" href="/bower_components/active-home-branding/loading-spinner.html">
 <link rel="import" href="/${id}/context-tree.html">
 
 <dom-module id="context-view">
 
     <template>
+        <loading-spinner id="spinner"></loading-spinner>
         <iron-ajax id="ajax"
                    handle-as="json"
                    on-response="handleResponse"></iron-ajax>
         <context-tree id="ctxtree"
-                      style="position: absolute; width:300px;overflow: scroll"></context-tree>
+                      style="position: absolute; width:300px;height: 100%"></context-tree>
         <div style="margin-left: 320px; height: 200px;">
             <schedule-view id="${node}.${id}-schedule-view"
                            schedule="{{schedule}}"></schedule-view>
@@ -42,6 +44,13 @@
     <script>
         Polymer({
             is: 'context-view',
+
+            properties: {
+                metrics: {
+                    type: Array,
+                    value: []
+                }
+            },
 
             listeners: {
                 "context-branch-selected": "loadPastFutureData"
@@ -95,6 +104,7 @@
                     }
                     this.$.ctxtree.data = ctxRoot;
                 }
+                this.$.spinner.hide();
             },
 
             addToTree: function (path, pathArray, branchValue, versions, children) {
@@ -138,7 +148,6 @@
 
             loadPastFutureData(e) {
                 // view over 48h centred on current time
-                console.log(e.detail.data);
                 var duration = 2*86400000;
                 var start = document.querySelector("web-socket").getLocalTime() - 86400000;
                 var granularity = 3600000;
@@ -150,9 +159,19 @@
                 if (e.detail.data.versions!="") {
                     metric += "#" + e.detail.data.versions;
                 }
-                ajax.body = JSON.stringify({params: [metric]});
+
+                if (e.ctrlKey) {
+                    console.log("ctrl key!")
+                    this.metrics.push(metric);
+                    console.log(this.metrics)
+                } else {
+                    this.metrics = [metric]
+                }
+
+                ajax.body = JSON.stringify({params: this.metrics});
                 this.fire('sent-ajax', {url: ajax.url});
                 ajax.generateRequest();
+                this.$.spinner.display();
             },
 
             guid: function () {
