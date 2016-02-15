@@ -26,16 +26,17 @@ package org.activehome.context;
 
 
 import com.eclipsesource.json.JsonObject;
-import org.activehome.com.*;
+import org.activehome.com.Notif;
+import org.activehome.com.Request;
+import org.activehome.com.RequestCallback;
+import org.activehome.com.ShowIfErrorCallback;
 import org.activehome.com.error.Error;
 import org.activehome.com.error.ErrorType;
 import org.activehome.context.com.ContextRequest;
 import org.activehome.context.data.*;
-
 import org.activehome.context.process.TriggerManager;
-import org.activehome.service.Service;
 import org.activehome.service.RequestHandler;
-import org.activehome.context.data.UserInfo;
+import org.activehome.service.Service;
 import org.kevoree.annotation.ComponentType;
 import org.kevoree.annotation.Input;
 import org.kevoree.annotation.Output;
@@ -72,12 +73,12 @@ public abstract class Context extends Service {
      * The map of the most recent data point
      * of each metric &lt;metricId, DataPoint&gt;.
      */
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> currentDP;
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> currentDPMap;
     /**
      * The map of the second most recent data point
      * of each metric &lt;metricId, DataPoint&gt;.
      */
-    private ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> previousDP;
+    private ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> previousDPMap;
     /**
      * The trigger manager.
      */
@@ -158,15 +159,15 @@ public abstract class Context extends Service {
     /**
      * @return The map of most recent DataPoints
      */
-    public final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> getCurrentDP() {
-        return currentDP;
+    public final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> getCurrentDPMap() {
+        return currentDPMap;
     }
 
     public final DataPoint getCurrentDP(final String metridID,
                                         final String version,
                                         final long shift) {
         try {
-            return currentDP.get(metridID).get(version).get(shift);
+            return currentDPMap.get(metridID).get(version).get(shift);
         } catch (NullPointerException e) {
             return null;
         }
@@ -175,15 +176,15 @@ public abstract class Context extends Service {
     /**
      * @return The map of second most recent DataPoints
      */
-    public final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> getPreviousDP() {
-        return previousDP;
+    public final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> getPreviousDPMap() {
+        return previousDPMap;
     }
 
     public final DataPoint getPreviousDP(final String metridID,
                                          final String version,
                                          final long shift) {
         try {
-            return currentDP.get(metridID).get(version).get(shift);
+            return currentDPMap.get(metridID).get(version).get(shift);
         } catch (NullPointerException e) {
             return null;
         }
@@ -264,14 +265,14 @@ public abstract class Context extends Service {
     private void manageIncoming(final DataPoint dp,
                                 final Notif notif) {
         if (notif.getSequenceNumber() == nextSequenceNumber) {
-            updateDataPoint(dp);
+            updateDataPoint(dp, true);
             nextSequenceNumber++;
             while (waitingDP.containsKey(nextSequenceNumber)) {
-                updateDataPoint(waitingDP.remove(nextSequenceNumber));
+                updateDataPoint(waitingDP.remove(nextSequenceNumber), true);
                 nextSequenceNumber++;
             }
         } else if (notif.getSequenceNumber() == -1) {
-            updateDataPoint(dp);
+            updateDataPoint(dp, true);
         } else {
             waitingDP.put(notif.getSequenceNumber(), dp);
         }
@@ -279,26 +280,23 @@ public abstract class Context extends Service {
 
     private void manageIncoming(final DataPoint[] dpArray,
                                 final Notif notif) {
-        updateDataPoint((DataPoint[]) notif.getContent());
+        for (DataPoint dp : dpArray) {
+            updateDataPoint(dp, false);
+        }
         sendNotif(new Notif(getFullId(), notif.getSrc(), getCurrentTime(),
                 "Array of data point managed."));
     }
 
     private void manageIncoming(final MetricRecord mr,
                                 final Notif notif) {
-        logInfo("manage Incoming mr: " + mr.getMainVersion());
-
         String[] impactedMetricArray = triggerManager.getMetricTriggeredBy(mr.getMetricId());
-        logInfo("metrics impacted by " + mr.getMetricId());
         for (int i = 0; i < impactedMetricArray.length; i++) {
             impactedMetricArray[i] += "#" + mr.getMainVersion() + ",0";
-            logInfo(impactedMetricArray[i]);
         }
 
         extractSchedule(mr.getStartTime(), mr.getTimeFrame(), HOUR, impactedMetricArray, new RequestCallback() {
             @Override
             public void success(Object result) {
-                logInfo("got envi schedule, ready to check trigger use for new mr");
                 List<MetricRecord> toSave = checkImpactedMR((Schedule) result, mr);
                 toSave.add(mr);
                 for (MetricRecord mrToSave : toSave) {
@@ -334,7 +332,6 @@ public abstract class Context extends Service {
     }
 
     private void saveNewMR(MetricRecord mrToSave) {
-        logInfo("saving mr " + mrToSave.getMetricId() + " main version: " + mrToSave.getMainVersion());
         for (String version : mrToSave.getAllVersionRecords().keySet()) {
             LinkedList<DataPoint> dpToSave = new LinkedList<>();
             LinkedList<Record> versionRecords = mrToSave.getRecords(version);
@@ -383,101 +380,86 @@ public abstract class Context extends Service {
     private void initMaps() {
         waitingDP = new TreeMap<>();
         subscriptionMap = new HashMap<>();
-        currentDP = new ConcurrentHashMap<>();
-        previousDP = new ConcurrentHashMap<>();
+        currentDPMap = new ConcurrentHashMap<>();
+        previousDPMap = new ConcurrentHashMap<>();
         triggerManager = new TriggerManager(this);
     }
 
     /**
-     * @param dp The new DataPoint
+     * Run control triggers on the new dp, then check if it exists
+     * a current value. update if changed or does not exist, nothing otherwise
+     *
+     * @return the list of dp which did not changed
      */
-    private void updateDataPoint(final DataPoint dp) {
-        LinkedList<DataPoint> dpToSave = new LinkedList<>();
-        LinkedList<DataPoint> changes = new LinkedList<>();
-        changes.add(dp);
-        while (changes.size() > 0) {
-            selectNoChange(changes, dp).forEach(changes::remove);
-            LinkedList<DataPoint> newChanges = new LinkedList<>();
-            dpToSave.addAll(changes);
-            for (DataPoint changedDP : changes) {
-                newChanges.addAll(triggerManager.checkUseTriggers(
-                        currentDP.get(changedDP.getMetricId()).get(changedDP.getVersion()).get(changedDP.getShift())));
-                notify(changedDP.getMetricId(), changedDP.getVersion(), changedDP);
-            }
-            changes.clear();
-            changes.addAll(newChanges);
-        }
-        save(dpToSave);
-    }
-
-    private LinkedList<String> selectNoChange(final LinkedList<DataPoint> changes,
-                                              final DataPoint dp) {
-        LinkedList<String> didNotChange = new LinkedList<>();
+    private LinkedList<DataPoint> updateIfChanged(final LinkedList<DataPoint> changes,
+                                                  final DataPoint dp) {
+        LinkedList<DataPoint> didNotChange = new LinkedList<>();
         for (DataPoint toCtrlDP : changes) {
             DataPoint ctrlDP = triggerManager.checkCtrlTriggers(toCtrlDP);
-
-            if (currentDP.containsKey(ctrlDP.getMetricId())) {
-                ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>> metricDPMap
-                        = currentDP.get(ctrlDP.getMetricId());
-                if (metricDPMap.containsKey(ctrlDP.getVersion())) {
-                    ConcurrentHashMap<Long, DataPoint> versionDPMap = metricDPMap.get(ctrlDP.getVersion());
-                    if (versionDPMap.containsKey(ctrlDP.getShift())) {
-                        String currentVal = versionDPMap.get(ctrlDP.getShift()).getValue();
-                        if (!currentVal.equals(ctrlDP.getValue())) {
-                            if (!previousDP.containsKey(ctrlDP.getMetricId())) {
-                                previousDP.put(ctrlDP.getMetricId(), new ConcurrentHashMap<>());
-                            }
-                            if (!previousDP.get(ctrlDP.getMetricId()).containsKey(ctrlDP.getVersion())) {
-                                previousDP.get(ctrlDP.getMetricId()).put(ctrlDP.getVersion(), new ConcurrentHashMap<>());
-                            }
-                            previousDP.get(ctrlDP.getMetricId()).get(ctrlDP.getVersion())
-                                    .put(ctrlDP.getShift(), versionDPMap.get(ctrlDP.getShift()));
-                            versionDPMap.put(ctrlDP.getShift(), ctrlDP);
-                        } else if (!(dp instanceof DiscreteDataPoint)) {
-                            didNotChange.add(ctrlDP.getMetricId());
-                        }
-                    } else {
-                        ConcurrentHashMap<Long, DataPoint> newShift = new ConcurrentHashMap<>();
-                        versionDPMap.put(ctrlDP.getShift(), ctrlDP);
+            if (!insertInCurrentDPMapIfNotExists(ctrlDP, currentDPMap)) {
+                DataPoint currentDP = currentDPMap.get(ctrlDP.getMetricId())
+                        .get(ctrlDP.getVersion()).get(ctrlDP.getShift());
+                if (!currentDP.getValue().equals(ctrlDP.getValue())) {
+                    if (!insertInCurrentDPMapIfNotExists(currentDP, previousDPMap)) {
+                        previousDPMap.get(ctrlDP.getMetricId()).get(ctrlDP.getVersion())
+                                .put(ctrlDP.getShift(), currentDP);
                     }
-                } else {
-                    ConcurrentHashMap<Long, DataPoint> newShift = new ConcurrentHashMap<>();
-                    newShift.put(ctrlDP.getShift(), ctrlDP);
-                    ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>> newVersion = new ConcurrentHashMap<>();
-                    metricDPMap.put(ctrlDP.getVersion(), newShift);
+                    currentDPMap.get(ctrlDP.getMetricId())
+                            .get(ctrlDP.getVersion()).put(ctrlDP.getShift(), ctrlDP);
+                } else if (!(ctrlDP instanceof DiscreteDataPoint)) {
+                    didNotChange.add(toCtrlDP);
                 }
-            } else {
-                ConcurrentHashMap<Long, DataPoint> newShift = new ConcurrentHashMap<>();
-                newShift.put(ctrlDP.getShift(), ctrlDP);
-                ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>> newVersion = new ConcurrentHashMap<>();
-                newVersion.put(ctrlDP.getVersion(), newShift);
-                currentDP.put(ctrlDP.getMetricId(), newVersion);
             }
         }
         return didNotChange;
     }
 
     /**
-     * @param dpArray The array of new DataPoints
+     * Insert the given data point in the map of dp if the combination
+     * metric-version-shift does not exist
+     *
+     * @param dp the data point
+     * @return true if the metricId-version-shift did not exist
      */
-    private void updateDataPoint(final DataPoint[] dpArray) {
+    private boolean insertInCurrentDPMapIfNotExists(final DataPoint dp,
+                                                    final ConcurrentHashMap<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> map) {
+        if (!map.containsKey(dp.getMetricId())) {
+            map.put(dp.getMetricId(), new ConcurrentHashMap<>());
+        }
+        if (!map.get(dp.getMetricId()).containsKey(dp.getVersion())) {
+            map.get(dp.getMetricId()).put(dp.getVersion(), new ConcurrentHashMap<>());
+        }
+        if (!map.get(dp.getMetricId()).get(dp.getVersion()).containsKey(dp.getShift())) {
+            map.get(dp.getMetricId()).get(dp.getVersion()).put(dp.getShift(), dp);
+            return true;
+        }
+        return false;
+    }
+
+
+    /**
+     * @param dp The new DataPoint
+     */
+    private void updateDataPoint(final DataPoint dp,
+                                 final boolean notifyChanges) {
         LinkedList<DataPoint> dpToSave = new LinkedList<>();
-        for (DataPoint dp : dpArray) {
-            LinkedList<DataPoint> changes = new LinkedList<>();
-            changes.add(dp);
-            while (changes.size() > 0) {
-                selectNoChange(changes, dp).forEach(changes::remove);
-                LinkedList<DataPoint> newChanges = new LinkedList<>();
-                dpToSave.addAll(changes);
-                for (DataPoint changedDP : changes) {
-                    newChanges.addAll(triggerManager.checkUseTriggers(
-                            currentDP.get(changedDP.getMetricId())
-                                    .get(changedDP.getVersion())
-                                    .get(changedDP.getShift())));
+        LinkedList<DataPoint> changes = new LinkedList<>();
+        changes.add(dp);
+        while (changes.size() > 0) {
+            LinkedList<DataPoint> toRemove = updateIfChanged(changes, dp);
+            changes.removeAll(toRemove);
+            LinkedList<DataPoint> newChanges = new LinkedList<>();
+            dpToSave.addAll(changes);
+            for (DataPoint changedDP : changes) {
+                newChanges.addAll(triggerManager.checkUseTriggers(
+                        currentDPMap.get(changedDP.getMetricId())
+                                .get(changedDP.getVersion()).get(changedDP.getShift())));
+                if (notifyChanges) {
+                    notify(changedDP.getMetricId(), changedDP.getVersion(), changedDP);
                 }
-                changes.clear();
-                changes.addAll(newChanges);
             }
+            changes.clear();
+            changes.addAll(newChanges);
         }
         save(dpToSave);
     }

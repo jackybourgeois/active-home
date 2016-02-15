@@ -36,6 +36,7 @@ import org.kevoree.annotation.ComponentType;
 import org.kevoree.annotation.Output;
 import org.kevoree.annotation.Param;
 
+import java.util.Date;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
