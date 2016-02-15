@@ -25,9 +25,7 @@ package org.activehome.context.data;
  */
 
 
-import java.util.HashMap;
 import java.util.LinkedList;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
@@ -60,7 +58,7 @@ public class SnapShot {
     public boolean next() {
         long nextTS = -1;
         for (SnapShotItem item : snapShotItems) {
-            if ( item.currentIndex < item.getRecords().size() - 1) {
+            if (item.currentIndex < item.getRecords().size() - 1) {
                 if (nextTS == -1 || item.getRecords().get(item.currentIndex + 1).getTS() < nextTS) {
                     nextTS = item.getRecords().get(item.currentIndex + 1).getTS();
                 }
@@ -85,7 +83,7 @@ public class SnapShot {
                                   final String version) {
         for (SnapShotItem item : snapShotItems) {
             if (item.getMetricId().equals(metricId)
-                    && item.getVersion().equals(version)) {
+                    && item.getVersion().equals(version) && item.getCurrentIndex() != -1) {
                 Record record = item.getRecords().get(item.getCurrentIndex());
                 return new DataPoint(metricId, schedule.getStart() + record.getTS(), record.getValue(),
                         version, 0, record.getConfidence());
@@ -98,7 +96,7 @@ public class SnapShot {
                                    final String version) {
         for (SnapShotItem item : snapShotItems) {
             if (item.getMetricId().equals(metricId)
-                    && item.getVersion().equals(version)) {
+                    && item.getVersion().equals(version) && item.getCurrentIndex() != -1) {
                 Record record = item.getRecords().get(item.getPreviousIndex());
                 return new DataPoint(metricId, schedule.getStart() + record.getTS(), record.getValue(),
                         version, 0, record.getConfidence());

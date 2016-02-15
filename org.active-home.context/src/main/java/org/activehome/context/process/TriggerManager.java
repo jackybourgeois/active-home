@@ -29,7 +29,6 @@ import org.activehome.com.error.Error;
 import org.activehome.context.Context;
 import org.activehome.context.data.*;
 import org.activehome.context.exception.ContextTriggerException;
-import org.activehome.context.process.InfixEvaluator;
 import org.kevoree.log.Log;
 
 import java.text.DecimalFormat;
@@ -189,7 +188,6 @@ public class TriggerManager {
      */
     public final LinkedList<MetricRecord> checkUseTriggers(final MetricRecord newMR,
                                                            final Schedule environmentSchedule) {
-        System.out.println("check use triggers for " + newMR.getMetricId());
         LinkedList<MetricRecord> changes = new LinkedList<>();
 
         useTriggerMap.keySet().stream()
@@ -222,28 +220,29 @@ public class TriggerManager {
                               final String resultMetricRecord,
                               final MetricRecord newMR,
                               final Schedule environmentSchedule) {
-        System.out.println("trigger eval mr " + newMR.getMetricId() + ", main version: " + newMR.getMainVersion()
-                + ", nb records: " + newMR.getRecords().size());
         MetricRecord resultMR = new MetricRecord(resultMetricRecord, newMR.getTimeFrame());
         SnapShot snapShot = new SnapShot(environmentSchedule);
         while (snapShot.next()) {
             DataPoint triggerDP = snapShot.getCurrentDP(newMR.getMetricId(), newMR.getMainVersion());
-            String infix = null;
-            try {
-                infix = replacePathInCondition(expression, triggerDP, snapShot);
-                InfixEvaluator infixEvaluator = new InfixEvaluator();
-                Object result = infixEvaluator.evalInfix(infix);
-                if (result instanceof org.activehome.com.error.Error) {
-                    Log.error("Trigger error: " + result.toString());
-                } else {
-                    if (resultMR.getRecords() == null || !resultMR.getLastValue().equals(result.toString())) {
-                        resultMR.addRecord(environmentSchedule.getStart() + snapShot.getTS(),
-                                result.toString(), newMR.getMainVersion(), 1);
+            if (triggerDP!=null) {
+                String infix = null;
+                try {
+                    infix = replacePathInCondition(expression, triggerDP, snapShot);
+                    InfixEvaluator infixEvaluator = new InfixEvaluator();
+                    Object result = infixEvaluator.evalInfix(infix);
+                    if (result instanceof org.activehome.com.error.Error) {
+                        Log.error("Trigger error: " + result.toString());
+                    } else {
+                        if (resultMR.getRecords() == null || !resultMR.getLastValue().equals(result.toString())) {
+                            resultMR.addRecord(environmentSchedule.getStart() + snapShot.getTS(),
+                                    result.toString(), newMR.getMainVersion(), 1);
+                        }
                     }
+                } catch (ContextTriggerException e) {
+                    Log.warn("Context trigger exception: " + e.getMessage());
                 }
-            } catch (ContextTriggerException e) {
-                Log.warn("Context trigger exception: " + e.getMessage());
             }
+
         }
 
         return resultMR;
@@ -351,8 +350,8 @@ public class TriggerManager {
                                           final SnapShot snapshot)
             throws ContextTriggerException {
         // replace triggered dp metric and val
-        String updatedExpression = expression.replaceAll("\\$\\{triggerMetric\\}", triggerDP.getMetricId())
-                .replaceAll("\\$\\{triggerValue\\}", triggerDP.getValue());
+        String updatedExpression = expression.replaceAll("\\$\\{triggerMetric\\}",
+                triggerDP.getMetricId()).replaceAll("\\$\\{triggerValue\\}", triggerDP.getValue());
 
         String[] versions = new String[]{triggerDP.getVersion(), "0"};
 
@@ -473,7 +472,7 @@ public class TriggerManager {
         double result = 0;
 
         Iterator<Map.Entry<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>>> iterator
-                = context.getCurrentDP().entrySet().iterator();
+                = context.getCurrentDPMap().entrySet().iterator();
         while (iterator.hasNext()) {
             Map.Entry<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> entry = iterator.next();
             if (entry.getKey().matches(pathRegex)) {

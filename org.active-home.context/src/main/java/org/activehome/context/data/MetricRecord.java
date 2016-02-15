@@ -51,7 +51,7 @@ public class MetricRecord {
     /**
      * The period's start time in milliseconds.
      */
-    private long startTime;
+    private long startTime = -1;
     /**
      * The duration of the period in milliseconds.
      */
@@ -75,6 +75,16 @@ public class MetricRecord {
     public MetricRecord(final String theMetricId,
                         final long theTimeFrame) {
         metricId = theMetricId;
+        timeFrame = theTimeFrame;
+        recording = true;
+        records = new HashMap<>();
+    }
+
+    public MetricRecord(final String theMetricId,
+                        final long theStartTime,
+                        final long theTimeFrame) {
+        metricId = theMetricId;
+        startTime = theStartTime;
         timeFrame = theTimeFrame;
         recording = true;
         records = new HashMap<>();
@@ -213,7 +223,7 @@ public class MetricRecord {
                                 final String value,
                                 final String version,
                                 final double confidence) {
-        if (records.size() == 0) {
+        if (startTime==-1) {
             startTime = ts;
         }
         if (mainVersion == null) {
@@ -244,7 +254,7 @@ public class MetricRecord {
                                 final String value,
                                 final String version,
                                 final double confidence) {
-        if (records.size() == 0) {
+        if (startTime == -1) {
             startTime = ts;
         }
         if (mainVersion == null) {
@@ -312,14 +322,17 @@ public class MetricRecord {
      * @return The time-stamp of the last record (milliseconds since 1970)
      */
     public final long getlastTS() {
-        return startTime + records.get(mainVersion).getLast().getTS();
+        if (records.get(mainVersion)!=null && records.get(mainVersion).size() > 0) {
+            return startTime + records.get(mainVersion).getLast().getTS();
+        }
+        return startTime;
     }
 
     /**
      * @return The last recorded value
      */
     public final String getLastValue() {
-        if (records.size() > 0) {
+        if (records.get(mainVersion)!=null && records.get(mainVersion).size() > 0) {
             return records.get(mainVersion).getLast().getValue();
         }
         return "";
