@@ -28,10 +28,10 @@ package org.activehome.io;
 import org.activehome.com.Notif;
 import org.activehome.com.Request;
 import org.activehome.time.TimeControlled;
-import org.kevoree.annotation.ComponentType;
-import org.kevoree.annotation.Input;
-import org.kevoree.annotation.Output;
-import org.kevoree.annotation.Param;
+import org.kevoree.annotation.*;
+import org.kevoree.api.ModelService;
+import org.kevoree.api.handler.ModelListener;
+import org.kevoree.api.handler.UpdateContext;
 import org.kevoree.log.Log;
 
 /**
@@ -42,7 +42,7 @@ import org.kevoree.log.Log;
  * @version %I%, %G%
  */
 @ComponentType
-public abstract class IO extends TimeControlled {
+public abstract class IO extends TimeControlled implements ModelListener {
 
     /**
      * The necessary bindings.
@@ -50,6 +50,13 @@ public abstract class IO extends TimeControlled {
     @Param(defaultValue = "pushNotif>Context.getNotif,"
             + "ctrl>User.pushCmd")
     private String bindingIO;
+
+    @KevoreeInject
+    private ModelService modelService;
+    /**
+     * To detect first update and start the test.
+     */
+    private boolean firstModelUpdate = true;
 
     /**
      * Send notification to the context.
@@ -61,6 +68,14 @@ public abstract class IO extends TimeControlled {
      */
     @Output
     private org.kevoree.api.Port toSchedule;
+
+    @Start
+    public void start() {
+        super.start();
+        if (modelService!=null) {
+            modelService.registerModelListener(this);
+        }
+    }
 
     /**
      * Send a notification with current value.
@@ -140,6 +155,43 @@ public abstract class IO extends TimeControlled {
 
     protected final void logError(String message) {
         Log.error("[" + getFullId() + " - " + strLocalTime() + "] " + message);
+    }
+
+    @Override
+    public boolean preUpdate(final UpdateContext updateContext) {
+        return true;
+    }
+
+    @Override
+    public boolean initUpdate(final UpdateContext updateContext) {
+        return true;
+    }
+
+
+    @Override
+    public void preRollback(UpdateContext updateContext) { }
+
+    @Override
+    public void postRollback(UpdateContext updateContext) { }
+
+    @Override
+    public boolean afterLocalUpdate(final UpdateContext updateContext) {
+        return true;
+    }
+
+    @Override
+    public void modelUpdated() {
+        if (firstModelUpdate) {
+            firstModelUpdate = false;
+        }
+    }
+
+    protected boolean isFirstModelUpdate() {
+        return firstModelUpdate;
+    }
+
+    protected ModelService getModelService() {
+        return modelService;
     }
 
 }

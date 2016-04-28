@@ -32,11 +32,10 @@
         <iron-ajax id="ajax"
                    handle-as="json"
                    on-response="handleResponse"></iron-ajax>
-        <context-tree id="ctxtree"
-                      style="position: absolute; width:300px;height: 100%"></context-tree>
+        <context-tree id="ctxtree" style="position: absolute; width:300px;height: 500px"></context-tree>
         <div style="margin-left: 320px; height: 200px;">
             <schedule-view id="${node}.${id}-schedule-view"
-                           schedule="{{schedule}}"></schedule-view>
+                           schedule="{{schedule}}" metrics="{{metrics}}"></schedule-view>
         </div>
 
     </template>
@@ -85,7 +84,7 @@
                 }
             },
 
-            updateDP: function(dp) {
+            updateDP: function (dp) {
             },
 
             handleResponse: function (e) {
@@ -97,7 +96,7 @@
                     for (var metric in data) {
                         var versions = "";
                         for (var version in data[metric]) {
-                            if (versions!="") versions += ",";
+                            if (versions != "") versions += ",";
                             versions += version;
                         }
                         this.addToTree("", metric.split("."), data[metric], versions, ctxRoot.children);
@@ -115,13 +114,15 @@
                         i++;
                     }
                     if (i == children.length) {
-                        children.push({"name": branch,
+                        children.push({
+                            "name": branch,
                             "open": true,
                             "shared": false,
                             "children": [],
-                            "value": {"0":""},
+                            "value": {"0": ""},
                             "path": path + "." + branch,
-                            "version": versions});
+                            "version": versions
+                        });
                     }
                     this.addToTree(path + "." + branch, pathArray, branchValue, versions, children[i].children);
                 } else if (pathArray.length == 1) {
@@ -146,9 +147,9 @@
                 }
             },
 
-            loadPastFutureData(e) {
+            loadPastFutureData(e, e2) {
                 // view over 48h centred on current time
-                var duration = 2*86400000;
+                var duration = 2 * 86400000;
                 var start = document.querySelector("web-socket").getLocalTime() - 86400000;
                 var granularity = 3600000;
 
@@ -156,14 +157,12 @@
                 ajax.method = "POST";
                 ajax.url = "/${id}/extractSchedule/" + start + "/" + duration + "/" + granularity;
                 var metric = e.detail.data.path.substr(1);
-                if (e.detail.data.versions!="") {
+                if (e.detail.data.versions != "") {
                     metric += "#" + e.detail.data.versions;
                 }
 
-                if (e.ctrlKey) {
-                    console.log("ctrl key!")
+                if (e.detail.ctrlKey) {
                     this.metrics.push(metric);
-                    console.log(this.metrics)
                 } else {
                     this.metrics = [metric]
                 }

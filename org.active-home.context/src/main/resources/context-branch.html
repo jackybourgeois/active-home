@@ -112,7 +112,9 @@
             },
 
             selectBranch: function (e) {
-                this.fire("context-branch-selected", this);
+                var detail = this;
+                detail.ctrlKey = e.ctrlKey;
+                this.fire("context-branch-selected", detail);
             },
 
             toggleChildren: function (e) {

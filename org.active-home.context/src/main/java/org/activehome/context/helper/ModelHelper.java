@@ -26,11 +26,16 @@ package org.activehome.context.helper;
 
 
 import org.activehome.context.data.Device;
-import org.kevoree.ComponentInstance;
-import org.kevoree.ContainerNode;
+import org.kevoree.*;
+import org.kevoree.api.ModelService;
+import org.kevoree.api.handler.UUIDModel;
+import org.kevoree.factory.DefaultKevoreeFactory;
+import org.kevoree.factory.KevoreeFactory;
+import org.kevoree.api.handler.UUIDModel;
 import org.kevoree.ContainerRoot;
-import org.kevoree.TypeDefinition;
-import org.kevoree.Value;
+import org.kevoree.api.ModelService;
+import org.kevoree.log.Log;
+import org.kevoree.pmodeling.api.ModelCloner;
 
 import java.util.HashMap;
 import java.util.LinkedList;
@@ -84,6 +89,17 @@ public final class ModelHelper {
         return list;
     }
 
+    public static LinkedList<String> findAllRunning(
+            final String type,
+            final String[] nodeNameArray,
+            final ModelService modelService) {
+        UUIDModel model = modelService.getCurrentModel();
+        KevoreeFactory kevFactory = new DefaultKevoreeFactory();
+        ModelCloner cloner = kevFactory.createModelCloner();
+        ContainerRoot localModel = cloner.clone(model.getModel());
+        return findAllRunning(type, nodeNameArray, localModel);
+    }
+
     /**
      * @param type          The type of component (class)
      * @param nodeNameArray List of nodes to look at
@@ -104,6 +120,17 @@ public final class ModelHelper {
             }
         }
         return map;
+    }
+
+    public static HashMap<String, Device> findAllRunningDevice(
+            final String type,
+            final String[] nodeNameArray,
+            final ModelService modelService) {
+        UUIDModel model = modelService.getCurrentModel();
+        KevoreeFactory kevFactory = new DefaultKevoreeFactory();
+        ModelCloner cloner = kevFactory.createModelCloner();
+        ContainerRoot localModel = cloner.clone(model.getModel());
+        return findAllRunningDevice(type, nodeNameArray, localModel);
     }
 
     /**
@@ -165,6 +192,27 @@ public final class ModelHelper {
             }
         }
         return attrMap;
+    }
+
+    /**
+     * Look at the Kevoree model to find InteractiveAppliance
+     * which are negotiables and update the negotiableDeviceMap.
+     */
+    public static HashMap<String, Device> negotiableDeviceMap(final ModelService modelService,
+                                                        final String nodeName) {
+        KevoreeFactory kevFactory = new DefaultKevoreeFactory();
+        ModelCloner cloner = kevFactory.createModelCloner();
+        UUIDModel model = modelService.getCurrentModel();
+        ContainerRoot localModel = cloner.clone(model.getModel());
+        HashMap<String, Device> deviceMap = findAllRunningDevice("InteractiveAppliance",
+                new String[]{nodeName}, localModel);
+        HashMap<String, Device> negotiableDeviceMap = new HashMap<>();
+        deviceMap.keySet().stream()
+                .filter(deviceId -> deviceMap.get(deviceId).isNegotiable())
+                .forEach(deviceId -> {
+                    negotiableDeviceMap.put(deviceId, deviceMap.get(deviceId));
+                });
+        return negotiableDeviceMap;
     }
 
 }

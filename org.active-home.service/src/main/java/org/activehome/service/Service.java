@@ -231,9 +231,6 @@ public abstract class Service extends TimeControlled implements ModelListener {
      */
     protected abstract RequestHandler getRequestHandler(final Request request);
 
-    /**
-     * On component start init attributes.
-     */
     @Start
     public void start() {
         super.start();
@@ -429,7 +426,7 @@ public abstract class Service extends TimeControlled implements ModelListener {
     }
 
     /**
-     * set a listener on a specific API
+     * Set a listener on a specific API
      */
     protected void listenAPI(final String apiFullId,
                              final String handler,
@@ -437,6 +434,16 @@ public abstract class Service extends TimeControlled implements ModelListener {
         sendRequest(new Request(getFullId(), apiFullId, getCurrentTime(),
                         "addHandler", new Object[]{handler, getFullId(), authentication}),
                 new ShowIfErrorCallback());
+    }
+
+    /**
+     * Request a subscription to the context for a series of metrics
+     */
+    protected void subscribeToContext(final String... metricIds) {
+        Request request = new Request(getFullId(), getNode() + ".context",
+                getCurrentTime(), "subscribe",
+                new Object[]{metricIds, getFullId()});
+        sendRequest(request, new ShowIfErrorCallback());
     }
 
     /**

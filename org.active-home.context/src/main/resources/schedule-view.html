@@ -212,22 +212,7 @@
             },
 
             displaySchedule: function () {
-                if (this.schedule!=null) {
-                    this.metrics = [];
-                    for (var i in this.schedule.mr) {
-                        var mr = this.schedule.mr[i];
-                        var metric = mr.metricId;
-                        var firstVers = true;
-                        for (version in mr.records) {
-                            if (firstVers) {
-                                metric += "#" + version;
-                                firstVers = false;
-                            } else {
-                                metric += "," + version;
-                            }
-                        }
-                        this.metrics.push(metric);
-                    }
+                if (this.schedule != null) {
                     this.start = this.schedule.start;
                     this.horizon = this.schedule.horizon;
                 }
@@ -361,6 +346,7 @@
 
             drawAreaChart: function (container, mr, mrNav) {
                 var timezone = document.querySelector("web-socket").getTimeZone() * 3600000;
+                console.log(timezone);
                 var options = {
                     title: mr.metricId + " (Continuous)",
                     legend: {position: 'bottom'},
@@ -393,7 +379,7 @@
                     nextIndex[version] = 0;
                 }
 
-                if (Object.keys(nextIndex).length>0) {
+                if (Object.keys(nextIndex).length > 0) {
                     var nextTS = mr.start;
 
                     while (ts < nextTS) {
@@ -445,6 +431,7 @@
                                 row.push(parseFloat(mr.records[i][nextIndex[i] - 1].value));
                             }
                         }
+                        console.log(row);
                         dataArray.push(row);
                     }
                 }
@@ -465,7 +452,26 @@
                     title: mr.metricId,
                     legend: {position: 'none'},
                     groupByRowLabel: true,
-                    backgroundColor: 'transparent'
+                    backgroundColor: 'transparent',
+                    hAxis: {
+                        viewWindow: {
+                            max: new Date(this.start + this.horizon),
+                            min: new Date(this.start)
+                        },
+                        gridlines: {
+                            count: -1,
+                            units: {
+                                days: {format: ['MMM dd']},
+                                hours: {format: ['HH:mm', 'ha']},
+                            }
+                        },
+                        minorGridlines: {
+                            units: {
+                                hours: {format: ['hh:mm:ss a', 'ha']},
+                                minutes: {format: ['HH:mm a Z', ':mm']}
+                            }
+                        }
+                    }
                 };
                 var dataTable = new google.visualization.DataTable();
                 var dataArray = [];
@@ -475,17 +481,22 @@
                 dataTable.addColumn({type: 'date', id: 'End'});
                 var start;
                 var end;
-                for (var j = 0; j < mr.records.length; j++) {
-                    var record = mr.records[j];
-                    start = new Date(mr.start + record.ts - timezone);
-                    if (j < mr.records.length - 1) {
-                        end = new Date(mr.start + mr.records[j + 1].ts - timezone);
-                    } else {
-                        end = new Date(mr.start + mr.timeFrame - timezone);
+                var records = mr.records["0"];
+                console.log(records);
+                if (records!=undefined) {
+                    for (var j = 0; j < records.length; j++) {
+                        var record = records[j];
+                        start = new Date(mr.start + record.ts - timezone);
+                        if (j < records.length - 1) {
+                            end = new Date(mr.start + records[j + 1].ts - timezone);
+                        } else {
+                            end = new Date(mr.start + mr.timeFrame - timezone);
+                        }
+                        console.log([record.value, start, end]);
+                        dataArray.push([record.value, start, end]);
                     }
-                    dataArray.push([record.value, start, end]);
+                    dataTable.addRows(dataArray);
                 }
-                dataTable.addRows(dataArray);
 
                 var chart = new google.visualization.Timeline(container);
                 this.addPrintButton(chart, mrNav);
