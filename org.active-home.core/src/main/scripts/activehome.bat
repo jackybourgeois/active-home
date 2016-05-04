@@ -1,0 +1,1 @@
+java -jar -Dnode.name=ah -Dnode.bootstrap=%ACTIVE_HOME%\main.kevs -Dnode.version=5.3.1 -Dactive-home.home=%ACTIVE_HOME% %ACTIVE_HOME%\org.kevoree.platform.standalone-5.2.5.jar
