@@ -281,7 +281,7 @@ public abstract class Context extends Service {
     private void manageIncoming(final DataPoint[] dpArray,
                                 final Notif notif) {
         for (DataPoint dp : dpArray) {
-            updateDataPoint(dp, false);
+            updateDataPoint(dp, true);
         }
         sendNotif(new Notif(getFullId(), notif.getSrc(), getCurrentTime(),
                 "Array of data point managed."));
