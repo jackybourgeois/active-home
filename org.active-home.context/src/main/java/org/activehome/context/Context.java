@@ -528,6 +528,7 @@ public abstract class Context extends Service {
                                 final String subscriptionDest,
                                 final UserInfo userInfo) {
         boolean isAdmin = userInfo != null && userInfo.isAdmin();
+        logInfo("Subscription request for " + subscriptionDest);
         for (String metric : metricArray) {
             if (isAdmin) {
                 metric = metric.replace(userInfo.getId() + ".*", "*");

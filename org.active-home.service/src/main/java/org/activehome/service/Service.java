@@ -159,6 +159,19 @@ public abstract class Service extends TimeControlled implements ModelListener {
                 }
                 response(request, new Error(ErrorType.METHOD_ERROR,
                         e.getMessage() + "").toJson());
+            } catch (IllegalArgumentException e) {
+                e.printStackTrace();
+                logError("in getRequest - " + reqStr);
+                logInfo("Method: " + method);
+                if (params != null) {
+                    for (int i = 0; i < classArray.length; i++) {
+                        logInfo("param " + i + ": " + params[i].getClass());
+                    }
+                } else {
+                    logError("Params is null.");
+                }
+                response(request, new Error(ErrorType.METHOD_ERROR,
+                        e.getMessage() + "").toJson());
             } catch (IllegalAccessException e) {
                 response(request, new Error(ErrorType.ILLEGAL_ACCESS,
                         e.getMessage() + "").toJson());
