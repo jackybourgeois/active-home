@@ -190,6 +190,7 @@ public class MetricRecord {
     }
 
     /**
+     * @param version  Version to look at
      * @return The list of records
      */
     public final LinkedList<Record> getRecords(final String version) {
@@ -218,6 +219,8 @@ public class MetricRecord {
     /**
      * @param ts    Time-stamp of the new record, in milliseconds since 1970
      * @param value The new value
+     * @param version  Version of the record
+     * @param confidence   confidence of the record
      */
     public final void addRecord(final long ts,
                                 final String value,
@@ -248,6 +251,8 @@ public class MetricRecord {
      * @param ts       Time-stamp of the new record, in milliseconds since 1970
      * @param duration Duration of the sample
      * @param value    The new value
+     * @param version  Version of the record
+     * @param confidence   confidence of the record
      */
     public final void addRecord(final long ts,
                                 final long duration,
@@ -292,6 +297,7 @@ public class MetricRecord {
     }
 
     /**
+     * @param version the version to poll
      * @return The first Record (start time shifting to the 'new' first record)
      */
     public final Record pollFirst(final String version) {
@@ -380,6 +386,8 @@ public class MetricRecord {
      * adding (sum=true) or subtracting the new values.
      *
      * @param srcMR The MetricRecord to merge
+     * @param srcVersion The incoming version
+     * @param destVersion The destination version
      * @param sum   Merge by summing, otherwise merge by subtracting
      */
     public final void mergeRecords(final MetricRecord srcMR,

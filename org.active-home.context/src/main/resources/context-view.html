@@ -147,7 +147,7 @@
                 }
             },
 
-            loadPastFutureData(e, e2) {
+            loadPastFutureData: function(e, e2) {
                 // view over 48h centred on current time
                 var duration = 2 * 86400000;
                 var start = document.querySelector("web-socket").getLocalTime() - 86400000;

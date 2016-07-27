@@ -39,9 +39,11 @@ public class SampledRecord extends Record {
     private long duration;
 
     /**
+     *
      * @param value     The value of the record
      * @param timestamp The time since the MetricRecord started
      * @param theDuration  The duration of the sample in milliseconds
+     * @param confidence Confidence of the sample
      */
     public SampledRecord(final String value,
                          final long timestamp,

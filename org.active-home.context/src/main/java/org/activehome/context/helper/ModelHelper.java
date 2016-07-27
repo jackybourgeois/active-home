@@ -197,6 +197,9 @@ public final class ModelHelper {
     /**
      * Look at the Kevoree model to find InteractiveAppliance
      * which are negotiables and update the negotiableDeviceMap.
+     * @param modelService reference to the model
+     * @param nodeName the name of the node we are looking at
+     * @return Map deviceId/device of the devices found.
      */
     public static HashMap<String, Device> negotiableDeviceMap(final ModelService modelService,
                                                         final String nodeName) {

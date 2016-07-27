@@ -75,6 +75,7 @@ public class TriggerManager {
 
     /**
      * Add new control trigger: a check and correction of the new DataPoint.
+     * @param trigger the trigger to add
      */
     public final void addCtrlTrigger(final Trigger trigger) {
         if (!ctrlTriggerMap.containsKey(trigger.getTriggerRegex())) {
@@ -86,6 +87,7 @@ public class TriggerManager {
     /**
      * Add new use trigger: a computation following the new DataPoint,
      * generating yet another DataPoint.
+     * @param trigger the trigger to add
      */
     public final void addUseTrigger(final Trigger trigger) {
         if (!useTriggerMap.containsKey(trigger.getTriggerRegex())) {
@@ -181,10 +183,9 @@ public class TriggerManager {
 
     /**
      * Check use triggers over a period.
-     *
-     * @param newMR
-     * @param environmentSchedule
-     * @return
+     * @param newMR the incoming MetricRecord
+     * @param environmentSchedule the current environment
+     * @return list of updated MetricRecords
      */
     public final LinkedList<MetricRecord> checkUseTriggers(final MetricRecord newMR,
                                                            final Schedule environmentSchedule) {

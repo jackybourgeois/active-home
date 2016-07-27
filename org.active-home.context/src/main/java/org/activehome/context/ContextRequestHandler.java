@@ -29,6 +29,8 @@ import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 import org.activehome.com.Request;
 import org.activehome.com.RequestCallback;
+import org.activehome.com.error.Error;
+import org.activehome.com.error.ErrorType;
 import org.activehome.context.com.ContextRequest;
 import org.activehome.context.data.Trigger;
 import org.activehome.service.RequestHandler;
@@ -80,20 +82,25 @@ public class ContextRequestHandler implements RequestHandler {
 
     /**
      * @param fileName The file name
-     * @return Content wrapped in Json
+     * @param callback Content wrapped in Json, or Error
      */
-    public final JsonValue file(final String fileName) {
+    public final void file(final String fileName,
+                           final RequestCallback callback) {
         String content = FileHelper.fileToString(fileName,
                 getClass().getClassLoader());
-        if (fileName.endsWith(".html")) {
-            content = content.replaceAll("\\$\\{id\\}", service.getId());
+        if (!content.equals("")) {
+            if (fileName.endsWith(".html")) {
+                content = content.replaceAll("\\$\\{id\\}", service.getId());
+            }
+            JsonObject json = new JsonObject();
+            json.add("content", content);
+            json.add("mime", TypeMime.valueOf(
+                    fileName.substring(fileName.lastIndexOf(".") + 1,
+                            fileName.length())).getDesc());
+            callback.success(json);
+        } else {
+            callback.error(new Error(ErrorType.NOT_FOUND, "File not found."));
         }
-        JsonObject json = new JsonObject();
-        json.add("content", content);
-        json.add("mime", TypeMime.valueOf(
-                fileName.substring(fileName.lastIndexOf(".") + 1,
-                        fileName.length())).getDesc());
-        return json;
     }
 
     /**

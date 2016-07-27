@@ -81,6 +81,9 @@ public class DataPoint {
      * @param theMetricId Data point's metric id
      * @param theTimestamp Data point's time-stamp (milliseconds)
      * @param theValue Data point's value
+     * @param theVersion  Version of the DataPoint
+     * @param theShift  Shift of the DataPoint
+     * @param theConfidence   confidence of the DataPoint
      */
     public DataPoint(final String theMetricId,
                      final long theTimestamp,
