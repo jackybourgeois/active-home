@@ -32,6 +32,7 @@ import com.eclipsesource.json.JsonValue;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
+import java.util.List;
 
 /**
  * The MetricRecord details the value of a metric over a given periods.
@@ -190,13 +191,16 @@ public class MetricRecord {
     }
 
     /**
-     * @param version  Version to look at
+     * @param version Version to look at
      * @return The list of records
      */
     public final LinkedList<Record> getRecords(final String version) {
         return records.get(version);
     }
 
+    /**
+     * @return the list of records of the main version.
+     */
     public final LinkedList<Record> getRecords() {
         return getRecords(mainVersion);
     }
@@ -217,16 +221,16 @@ public class MetricRecord {
     }
 
     /**
-     * @param ts    Time-stamp of the new record, in milliseconds since 1970
-     * @param value The new value
-     * @param version  Version of the record
-     * @param confidence   confidence of the record
+     * @param ts         Time-stamp of the new record, in milliseconds since 1970
+     * @param value      The new value
+     * @param version    Version of the record
+     * @param confidence confidence of the record
      */
     public final void addRecord(final long ts,
                                 final String value,
                                 final String version,
                                 final double confidence) {
-        if (startTime==-1) {
+        if (startTime == -1) {
             startTime = ts;
         }
         if (mainVersion == null) {
@@ -248,11 +252,11 @@ public class MetricRecord {
     }
 
     /**
-     * @param ts       Time-stamp of the new record, in milliseconds since 1970
-     * @param duration Duration of the sample
-     * @param value    The new value
-     * @param version  Version of the record
-     * @param confidence   confidence of the record
+     * @param ts         Time-stamp of the new record, in milliseconds since 1970
+     * @param duration   Duration of the sample
+     * @param value      The new value
+     * @param version    Version of the record
+     * @param confidence confidence of the record
      */
     public final void addRecord(final long ts,
                                 final long duration,
@@ -328,7 +332,7 @@ public class MetricRecord {
      * @return The time-stamp of the last record (milliseconds since 1970)
      */
     public final long getlastTS() {
-        if (records.get(mainVersion)!=null && records.get(mainVersion).size() > 0) {
+        if (records.get(mainVersion) != null && records.get(mainVersion).size() > 0) {
             return startTime + records.get(mainVersion).getLast().getTS();
         }
         return startTime;
@@ -338,7 +342,7 @@ public class MetricRecord {
      * @return The last recorded value
      */
     public final String getLastValue() {
-        if (records.get(mainVersion)!=null && records.get(mainVersion).size() > 0) {
+        if (records.get(mainVersion) != null && records.get(mainVersion).size() > 0) {
             return records.get(mainVersion).getLast().getValue();
         }
         return "";
@@ -385,10 +389,10 @@ public class MetricRecord {
      * Merge 1 version of an MR into the current MR,
      * adding (sum=true) or subtracting the new values.
      *
-     * @param srcMR The MetricRecord to merge
-     * @param srcVersion The incoming version
+     * @param srcMR       The MetricRecord to merge
+     * @param srcVersion  The incoming version
      * @param destVersion The destination version
-     * @param sum   Merge by summing, otherwise merge by subtracting
+     * @param sum         Merge by summing, otherwise merge by subtracting
      */
     public final void mergeRecords(final MetricRecord srcMR,
                                    final String srcVersion,
@@ -477,7 +481,7 @@ public class MetricRecord {
             while (i < records.size() - 1 && records.get(i + 1).getTS() < ts) {
                 i++;
             }
-            if (records.size()>0) {
+            if (records.size() > 0) {
                 valueMap.put(version, records.get(i).getValue());
             }
         }
@@ -493,19 +497,63 @@ public class MetricRecord {
     }
 
 
-    public static LinkedList<MetricRecord> sortByStartDate(final LinkedList<MetricRecord> loadList) {
+    public static LinkedList<MetricRecord> sortByStartDate(
+            final LinkedList<MetricRecord> loadList) {
         LinkedList<MetricRecord> sortedLoadList = new LinkedList<>();
         for (MetricRecord load : loadList) {
             if (sortedLoadList.size() == 0) {
                 sortedLoadList.add(load);
             } else {
                 int i = 1;
-                while (i < sortedLoadList.size() && sortedLoadList.get(i).getStartTime() < load.getStartTime()) i++;
+                while (i < sortedLoadList.size()
+                        && sortedLoadList.get(i).getStartTime() < load.getStartTime()) {
+                    i++;
+                }
                 sortedLoadList.add(i - 1, load);
             }
 
         }
 
         return sortedLoadList;
+    }
+
+    /**
+     * Compute the number of data point per hour of
+     * the main version for the entire time frame.
+     *
+     * @param granularity of the result
+     * @return frequency (DP/granularity)
+     */
+    public List<Integer> computeFrequencyDatapointPerHour(
+            final long granularity) {
+        return computeFrequencyDatapointPerHour(mainVersion, granularity);
+    }
+
+    /**
+     * Compute the number of data point per hour of
+     * the specified version for the entire time frame.
+     *
+     * @param version     to analyse
+     * @param granularity of the result
+     * @return list of frequencies (DP/granularity) for each hour of the time frame
+     */
+    public List<Integer> computeFrequencyDatapointPerHour(
+            final String version,
+            final long granularity) {
+        LinkedList<Integer> result = new LinkedList<>();
+        long endSlot = -1;
+        int nbRecords = 0;
+        for (Record record : getRecords(version)) {
+            if (endSlot < record.getTS()) {
+                if (endSlot != -1) {
+                    result.add(nbRecords);
+                }
+                nbRecords = 0;
+                endSlot += granularity;
+            }
+            nbRecords++;
+        }
+        result.add(nbRecords);
+        return result;
     }
 }
