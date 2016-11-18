@@ -47,6 +47,7 @@ public final class Convert {
         if (val.endsWith("d")) return Integer.valueOf(val.replace("d", "")) * 86400000;
         if (val.endsWith("h")) return Integer.valueOf(val.replace("h", "")) * 3600000;
         if (val.endsWith("mn")) return Integer.valueOf(val.replace("mn", "")) * 60000;
+        if (val.endsWith("s")) return Integer.valueOf(val.replace("s", "")) * 1000;
         try {
             return Long.valueOf(val);
         } catch (NumberFormatException nfe) {
