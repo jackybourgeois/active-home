@@ -61,7 +61,11 @@ public abstract class TimeControlled {
 
     @Start
     public void start() {
-        Thread.currentThread().setName(context.getNodeName() + "." + context.getInstanceName());
+        String threadName = this.getClass().getSimpleName();
+        if (context!=null) {
+            threadName = context.getNodeName() + "." + context.getInstanceName();
+        }
+        Thread.currentThread().setName(threadName);
         printDate = new SimpleDateFormat("dd/MM/YY HH:mm:ss");
         printDate.setTimeZone(TimeZone.getTimeZone("UTC"));
         tic = new Tic(0, 1, 0, TimeStatus.UNKNOWN, null);
