@@ -247,7 +247,7 @@ public abstract class Service extends TimeControlled implements ModelListener {
     @Start
     public void start() {
         super.start();
-        if (modelService!=null) {
+        if (modelService != null) {
             modelService.registerModelListener(this);
         }
         waitingRequest = new HashMap<>();
@@ -257,21 +257,30 @@ public abstract class Service extends TimeControlled implements ModelListener {
      * @return The service id (Kevoree component id)
      */
     public final String getId() {
-        return context.getInstanceName();
+        if (context != null) {
+            return context.getInstanceName();
+        }
+        return getClass().getSimpleName();
     }
 
     /**
      * @return Kevoree node running the component
      */
     public final String getNode() {
-        return context.getNodeName();
+        if (context !=null) {
+            return context.getNodeName();
+        }
+        return "ah";
     }
 
     /**
      * @return The full id (nodeName.componentName)
      */
     public final String getFullId() {
-        return context.getNodeName() + "." + context.getInstanceName();
+        if (context != null) {
+            return context.getNodeName() + "." + context.getInstanceName();
+        }
+        return  "ah." + getClass().getSimpleName();
     }
 
     /**
@@ -404,7 +413,7 @@ public abstract class Service extends TimeControlled implements ModelListener {
      * @param callback The callback
      */
     public final void sendRequest(final Request request, final RequestCallback callback) {
-        if (lastCheckExpiredRequests-System.currentTimeMillis()>Request.DEFAULT_TIMEOUT) {
+        if (lastCheckExpiredRequests - System.currentTimeMillis() > Request.DEFAULT_TIMEOUT) {
             removeExpiredRequests();
         }
         if (pushRequest != null && pushRequest.getConnectedBindingsSize() > 0) {
@@ -506,10 +515,12 @@ public abstract class Service extends TimeControlled implements ModelListener {
 
 
     @Override
-    public void preRollback(UpdateContext updateContext) { }
+    public void preRollback(UpdateContext updateContext) {
+    }
 
     @Override
-    public void postRollback(UpdateContext updateContext) { }
+    public void postRollback(UpdateContext updateContext) {
+    }
 
     @Override
     public boolean afterLocalUpdate(final UpdateContext updateContext) {

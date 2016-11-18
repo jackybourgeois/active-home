@@ -72,7 +72,7 @@ public abstract class IO extends TimeControlled implements ModelListener {
     @Start
     public void start() {
         super.start();
-        if (modelService!=null) {
+        if (modelService != null) {
             modelService.registerModelListener(this);
         }
     }
@@ -87,6 +87,7 @@ public abstract class IO extends TimeControlled implements ModelListener {
 
     /**
      * Run a command.
+     *
      * @param command Command as String
      */
     @Input
@@ -96,13 +97,16 @@ public abstract class IO extends TimeControlled implements ModelListener {
 
     /**
      * Receive request from the Task Scheduler.
+     *
      * @param request The request as string
      */
     @Input
-    public void toExecute(final String request) {}
+    public void toExecute(final String request) {
+    }
 
     /**
      * Receive a Message from an API.
+     *
      * @param msgStr The message as string
      */
     @Input
@@ -114,25 +118,34 @@ public abstract class IO extends TimeControlled implements ModelListener {
      * @return Component id
      */
     public final String getId() {
-        return context.getInstanceName();
+        if (context != null) {
+            return context.getInstanceName();
+        }
+        return getClass().getSimpleName();
     }
 
     /**
      * @return Component node
      */
     public final String getNode() {
-        return context.getNodeName();
+        if (context != null) {
+            return context.getNodeName();
+        }
+        return  "ah";
     }
 
     /**
      * @return Component full id (nodeName.componentName)
      */
     public final String getFullId() {
-        return context.getNodeName() + "." + context.getInstanceName();
+        if (context != null) {
+            return context.getNodeName() + "." + context.getInstanceName();
+        }
+        return  "ah." + getClass().getSimpleName();
     }
 
     /**
-     * @param notif  The notif to send
+     * @param notif The notif to send
      */
     public final void sendNotif(final Notif notif) {
         if (pushNotif != null && pushNotif.getConnectedBindingsSize() > 0) {
@@ -141,7 +154,7 @@ public abstract class IO extends TimeControlled implements ModelListener {
     }
 
     /**
-     * @param scheduledRequest  The ScheduledRequest to send
+     * @param scheduledRequest The ScheduledRequest to send
      */
     public final void sendToTaskScheduler(final Request scheduledRequest) {
         if (toSchedule != null && toSchedule.getConnectedBindingsSize() > 0) {
@@ -169,10 +182,12 @@ public abstract class IO extends TimeControlled implements ModelListener {
 
 
     @Override
-    public void preRollback(UpdateContext updateContext) { }
+    public void preRollback(UpdateContext updateContext) {
+    }
 
     @Override
-    public void postRollback(UpdateContext updateContext) { }
+    public void postRollback(UpdateContext updateContext) {
+    }
 
     @Override
     public boolean afterLocalUpdate(final UpdateContext updateContext) {
