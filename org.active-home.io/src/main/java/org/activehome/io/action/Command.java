@@ -73,6 +73,14 @@ public enum Command {
      */
     STATUS,
     /**
+     * Refresh a status, get latest data.
+     */
+    REFRESH,
+    /**
+     * Update the frequency, take one parameter of time interval
+     */
+    PACE,
+    /**
      * Set interactive appliances ready to start.
      */
     SET,
