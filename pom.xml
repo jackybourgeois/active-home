@@ -35,7 +35,7 @@
         <developer>
             <name>Jacky Bourgeois</name>
             <email>jacky.bourgeois@gmail.com</email>
-            <id>jacky.bourgeois</id>
+            <id>jackybourgeois</id>
             <roles>
                 <role>admin</role>
                 <role>developer</role>
@@ -56,15 +56,13 @@
         <module>org.active-home.time</module>
         <module>org.active-home.core</module>
         <module>org.active-home.test</module>
-        <module>org.active-home.mysql</module>
         <module>org.active-home.predictor</module>
-        <module>org.active-home.svg</module>
         <module>org.active-home.evaluator</module>
     </modules>
 
     <properties>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
-        <kevoree.version>5.3.1</kevoree.version>
+        <kevoree.version>5.4.0-SNAPSHOT</kevoree.version>
         <kmf.version>4.26.0</kmf.version>
         <junit.version>4.11</junit.version>
         <jdk.target>1.8</jdk.target>
