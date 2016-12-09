@@ -35,7 +35,6 @@ import java.util.UUID;
  * Dedicated handler for predictor request.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class PredictorRequestHandler implements RequestHandler {
 
@@ -84,6 +83,5 @@ public class PredictorRequestHandler implements RequestHandler {
     public final void evaluate(final UUID predictionId) {
         service.evaluate(predictionId);
     }
-
 
 }

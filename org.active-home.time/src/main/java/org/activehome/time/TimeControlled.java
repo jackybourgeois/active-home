@@ -1,6 +1,6 @@
 package org.activehome.time;
 
-/*
+/*-
  * #%L
  * Active Home :: Time
  * $Id:$
@@ -10,7 +10,7 @@ package org.activehome.time;
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the 
+ * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -18,24 +18,29 @@ package org.activehome.time;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public 
+ * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 
-
 import com.eclipsesource.json.JsonObject;
-import org.kevoree.annotation.*;
+import org.kevoree.annotation.ComponentType;
+import org.kevoree.annotation.Input;
+import org.kevoree.annotation.KevoreeInject;
+import org.kevoree.annotation.Param;
+import org.kevoree.annotation.Start;
 
 import java.text.SimpleDateFormat;
 import java.util.TimeZone;
 
 /**
+ * Base of any Active Home component which aims to be time aware.
+ *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "Base of any Active Home component "
+        + "which aims to be time aware")
 public abstract class TimeControlled {
 
     /**

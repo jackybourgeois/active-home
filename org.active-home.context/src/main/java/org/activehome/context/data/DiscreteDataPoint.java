@@ -32,7 +32,6 @@ import com.eclipsesource.json.JsonObject;
  * (energy, amount of money...).
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class DiscreteDataPoint extends DataPoint {
 

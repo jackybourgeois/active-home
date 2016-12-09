@@ -29,7 +29,6 @@ package org.activehome.tools.file;
  * List of Type Mine and their description.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public enum TypeMime {
 

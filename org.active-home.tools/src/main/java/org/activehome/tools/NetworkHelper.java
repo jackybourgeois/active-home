@@ -34,7 +34,6 @@ import java.util.Enumeration;
  * This class facilitate network stuff.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public final class NetworkHelper {
 

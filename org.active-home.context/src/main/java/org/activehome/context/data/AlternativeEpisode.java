@@ -34,7 +34,6 @@ import java.util.LinkedList;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class AlternativeEpisode {
 

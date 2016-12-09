@@ -29,6 +29,8 @@ import org.activehome.com.Notif;
 import org.activehome.com.Request;
 import org.activehome.com.RequestCallback;
 import org.activehome.com.ShowIfErrorCallback;
+import org.activehome.context.data.DiscreteDataPoint;
+import org.activehome.context.data.Schedule;
 import org.activehome.service.RequestHandler;
 import org.activehome.service.Service;
 import org.activehome.tools.Convert;
@@ -36,20 +38,21 @@ import org.kevoree.annotation.ComponentType;
 import org.kevoree.annotation.Output;
 import org.kevoree.annotation.Param;
 
-import java.util.Date;
 import java.util.concurrent.ScheduledThreadPoolExecutor;
 import java.util.concurrent.TimeUnit;
 
 
 /**
+ * An evaluator produces evaluation reports for/on the system.
+ *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "An evaluator produce "
+        + "evaluation reports for/on the system.")
 public abstract class Evaluator extends Service {
 
     /**
-     * generate evaluation at fixed interval.
+     * Generate evaluation at fixed interval.
      * (-1 will evaluate only when requested)
      */
     @Param(defaultValue = "1d")
@@ -59,9 +62,9 @@ public abstract class Evaluator extends Service {
      * 1d means 'evaluate the last day', 2d means 'evaluate the last 2 days'...
      */
     @Param(defaultValue = "1d")
-    private String defaultHorizon;
+    private String defaultHorizon = "1d";
     /**
-     * Push any new pushReport
+     * Push any new pushReport.
      */
     @Output
     private org.kevoree.api.Port pushReport;
@@ -72,29 +75,39 @@ public abstract class Evaluator extends Service {
     private ScheduledThreadPoolExecutor stpe;
 
     /**
-     * time of the last evaluation
+     * Time of the last evaluation.
      */
     private long lastEvaluationTS;
 
     // time life cycle
 
+    /**
+     * If override, this method should be called first.
+     */
     @Override
     public void onInit() {
         super.onInit();
         lastEvaluationTS = -1;
     }
 
+    /**
+     * If override, this method should be called first.
+     */
     @Override
     public void onStartTime() {
         super.onStartTime();
         if (!evalInterval.equals("-1")) {
             initExecutor();
-            long delay = Convert.strDurationToMillisec(evalInterval) / getTic().getZip();
+            long delay = Convert.strDurationToMillisec(evalInterval)
+                    / getTic().getZip();
             stpe.scheduleAtFixedRate(this::evaluate, delay, delay,
                     TimeUnit.MILLISECONDS);
         }
     }
 
+    /**
+     * If override, this method should be called first.
+     */
     @Override
     public void onPauseTime() {
         super.onPauseTime();
@@ -103,6 +116,9 @@ public abstract class Evaluator extends Service {
         }
     }
 
+    /**
+     * If override, this method should be called last.
+     */
     @Override
     public void onResumeTime() {
         super.onResumeTime();
@@ -120,6 +136,9 @@ public abstract class Evaluator extends Service {
         }
     }
 
+    /**
+     * If override, this method should be called last.
+     */
     @Override
     public void onStopTime() {
         super.onStopTime();
@@ -134,14 +153,17 @@ public abstract class Evaluator extends Service {
     // evaluation
 
     private void evaluate() {
-        long midnight = getLocalTime() - getLocalTime() % DAY - HOUR * getTic().getTimezone();
+        long midnight = getLocalTime() - getLocalTime() % DAY
+                - HOUR * getTic().getTimezone();
         evaluate(midnight - Convert.strDurationToMillisec(defaultHorizon),
                 midnight, new ShowIfErrorCallback());
     }
 
-    public abstract void evaluate(final long startTS,
-                                  final long endTS,
-                                  final RequestCallback callback);
+    public abstract void evaluate(long startTS,
+                                  long endTS,
+                                  RequestCallback callback);
+
+    public abstract EvaluationReport evaluate(Schedule schedule);
 
     /**
      * Get the handler that will execute the request.
@@ -160,7 +182,7 @@ public abstract class Evaluator extends Service {
         });
     }
 
-    public String getDefaultHorizon() {
+    public final String getDefaultHorizon() {
         return defaultHorizon;
     }
 
@@ -171,10 +193,36 @@ public abstract class Evaluator extends Service {
      */
     public final void publishReport(final EvaluationReport report) {
         if (pushReport != null && pushReport.getConnectedBindingsSize() > 0) {
-            Notif reportNotif = new Notif(getFullId(), "*", getCurrentTime(), report);
+            Notif reportNotif = new Notif(getFullId(), "*",
+                    getCurrentTime(), report);
             pushReport.send(reportNotif.toString(), null);
         }
     }
 
+    public final EvaluationReport evaluateAndPublish(final Schedule schedule) {
+        EvaluationReport report = evaluate(schedule);
+
+        for (String metric : report.getReportedMetrics().keySet()) {
+            sendEvalToContext(metric.split("#")[0], schedule.getStart(),
+                    report.getReportedMetrics().get(metric),
+                    schedule.getHorizon(), metric.split("#")[1]);
+        }
+
+        publishReport(report);
+
+        return report;
+    }
+
+    private void sendEvalToContext(final String metricId,
+                                   final long start,
+                                   final String val,
+                                   final long duration,
+                                   final String version) {
+        DiscreteDataPoint ddp = new DiscreteDataPoint(metricId, start, val,
+                version, 0, 1,
+                Convert.strDurationToMillisec(getDefaultHorizon()));
+        sendNotif(new Notif(getFullId(), getNode() + ".context",
+                getCurrentTime(), ddp));
+    }
 
 }

@@ -11,6 +11,7 @@
     <artifactId>org.active-home.user</artifactId>
     <packaging>jar</packaging>
     <name>Active Home :: User</name>
+    <description>Base of user management on Active Home</description>
 
     <dependencies>
         <dependency>

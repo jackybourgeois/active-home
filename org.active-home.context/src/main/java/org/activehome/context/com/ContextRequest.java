@@ -31,7 +31,6 @@ import org.activehome.time.TimeControlled;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class ContextRequest {
 
@@ -45,7 +44,7 @@ public class ContextRequest {
      *   otherwise the sampling is averaged.
      * Default: true
      */
-    private boolean discrete;
+    private boolean discrete = true;
     /**
      * Start timestamp in milliseconds.
      */
@@ -54,49 +53,32 @@ public class ContextRequest {
      * Duration of each sample in milliseconds.
      * Default: 1hr
      */
-    private long sampleDuration;
+    private long sampleDuration = TimeControlled.HOUR;
     /**
      * Frequency of iteration to extract a sample, in milliseconds.
      * e.g. a frequency of 1 day will extract the sample everyday
      * at the same time (default = 1hr)
      */
-    private long frequency;
+    private long frequency = TimeControlled.HOUR;
     /**
      * Number of iteration (default = 1),
      * it provides less if not available.
      */
-    private int numOfIteration;
+    private int numOfIteration = 1;
     /**
      * Type of period, select only sample during this type of period.
      * (default = no filter)
      */
-    private String periodType;
+    private String periodType = "";
     /**
      * Function to apply across all sample (default = none).
      */
-    private String function;
+    private String function = "";
 
     public ContextRequest(final String[] theMetrics,
-                          final boolean isDiscrete,
-                          final long theStartTS,
-                          final long theSampleDuration,
-                          final long theFrequency,
-                          final int theNumOfIteration,
-                          final String thePeriodType,
-                          final String theFunction) {
+                          final long theStartTS) {
         metrics = theMetrics;
-        discrete = isDiscrete;
         startTS = theStartTS;
-        sampleDuration = theSampleDuration;
-        frequency = theFrequency;
-        numOfIteration = theNumOfIteration;
-        periodType = thePeriodType;
-        function = theFunction;
-    }
-
-    public ContextRequest(final String[] theMetrics, final long theStartTS) {
-        this(theMetrics, true, theStartTS, TimeControlled.HOUR, TimeControlled.HOUR,
-                1, "", "");
     }
 
     public ContextRequest(final JsonObject json) {
@@ -146,6 +128,9 @@ public class ContextRequest {
         return function;
     }
 
+    /**
+     * @return The error as Json
+     */
     public final JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.add("type", ContextRequest.class.getName());
@@ -164,6 +149,9 @@ public class ContextRequest {
         return json;
     }
 
+    /**
+     * @return Json as string
+     */
     @Override
     public final String toString() {
         return toJson().toString();

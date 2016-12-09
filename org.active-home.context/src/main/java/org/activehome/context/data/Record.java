@@ -31,7 +31,6 @@ import com.eclipsesource.json.JsonObject;
  * Records composed MetricRecords.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class Record {
 
@@ -46,22 +45,22 @@ public class Record {
     /**
      * How reliable is this record (between 0 and 1).
      */
-    private double confidence;
+    private double confidence = 1;
 
     /**
-     * @param val The value of the record
+     * @param val       The value of the record
      * @param timestamp The time since the MetricRecord started
      */
     public Record(final String val,
                   final long timestamp) {
-        this(val, timestamp, 1);
+        value = val;
+        ts = timestamp;
     }
 
     public Record(final String val,
                   final long timestamp,
                   final double conf) {
-        value = val;
-        ts = timestamp;
+        this(val, timestamp);
         confidence = conf;
     }
 
@@ -81,6 +80,9 @@ public class Record {
         return value;
     }
 
+    /**
+     * @return get record's value as double
+     */
     public final double getDouble() {
         try {
             return Double.valueOf(value);
@@ -103,6 +105,9 @@ public class Record {
         return ts;
     }
 
+    /**
+     * @return The confidence of the record
+     */
     public double getConfidence() {
         return confidence;
     }
@@ -123,8 +128,8 @@ public class Record {
         JsonObject json = new JsonObject();
         json.add("value", value);
         json.add("ts", ts);
-        if (confidence!=1) {
-            json.add("confidence",confidence);
+        if (confidence != 1) {
+            json.add("confidence", confidence);
         }
         return json;
     }

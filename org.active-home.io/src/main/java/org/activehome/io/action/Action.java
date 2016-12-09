@@ -30,15 +30,41 @@ import com.eclipsesource.json.JsonObject;
 import java.util.HashMap;
 import java.util.UUID;
 
+/**
+ * Define an action to execute.
+ */
 public class Action {
-
+    /**
+     * Unique id of the action.
+     */
     private final UUID id;
+    /**
+     * The command to execute to start the action.
+     */
     private final Command startCmd;
+    /**
+     * The command to execute to end the action.
+     */
     private final Command endCmd;
+    /**
+     * Map of impacted metrics and their expected impact.
+     */
     private final HashMap<String, Double> impact;
+    /**
+     * The action duration (between start and end command).
+     */
     private long duration;
+    /**
+     * Date after which it is no longer relevant to execute the action.
+     */
     private long expireDate;
+    /**
+     * Unique id of the related schedule.
+     */
     private UUID scheduleID;
+    /**
+     * Is this action outdated?
+     */
     private boolean outDated = false;
 
     public Action(final Command theStartCmd,
@@ -59,7 +85,8 @@ public class Action {
 
         impact = new HashMap<>();
         for (String name : json.get("impact").asObject().names()) {
-            impact.put(name, json.get("impact").asObject().get(name).asDouble());
+            impact.put(name, json.get("impact")
+                    .asObject().get(name).asDouble());
         }
 
         duration = json.get("duration").asLong();
@@ -68,55 +95,60 @@ public class Action {
         outDated = json.get("isOutdated").asBoolean();
     }
 
-    public Command getStartCmd() {
+    public final Command getStartCmd() {
         return startCmd;
     }
 
-    public Command getEndCmd() {
+    public final Command getEndCmd() {
         return endCmd;
     }
 
-    public HashMap<String, Double> getImpact() {
+    public final HashMap<String, Double> getImpact() {
         return impact;
     }
 
-    public long getDuration() {
+    public final long getDuration() {
         return duration;
     }
 
-    public void setDuration(long duration) {
-        this.duration = duration;
+    public final void setDuration(final long aDuration) {
+        duration = aDuration;
     }
 
-    public long getExpireDate() {
+    public final long getExpireDate() {
         return expireDate;
     }
 
-    public void setExpireDate(long expireDate) {
-        this.expireDate = expireDate;
+    public final void setExpireDate(final long anExpireDate) {
+        expireDate = anExpireDate;
     }
 
-    public void setScheduleID(UUID scheduleID) {
-        this.scheduleID = scheduleID;
+    public final void setScheduleID(final UUID aScheduleID) {
+        scheduleID = aScheduleID;
     }
 
-    public UUID getId() {
+    public final UUID getId() {
         return id;
     }
 
-    public UUID getScheduleID() {
+    public final UUID getScheduleID() {
         return scheduleID;
     }
 
-    public boolean isOutDated() {
+    public final boolean isOutDated() {
         return outDated;
     }
 
-    public void setOutDated() {
+    public final void setOutDated() {
         outDated = true;
     }
 
-    public JsonObject toJson() {
+    /**
+     * Convert the Action into Json.
+     *
+     * @return the Json
+     */
+    public final JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.add("type", Action.class.getName());
         json.add("id", getId().toString());
@@ -137,7 +169,11 @@ public class Action {
         return json;
     }
 
-    public String toString() {
+    /**
+     * @return The Json as String
+     */
+    @Override
+    public final String toString() {
         return toJson().toString();
     }
 

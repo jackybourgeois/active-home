@@ -26,7 +26,6 @@ package org.activehome.context;
 
 
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
 import org.activehome.com.Request;
 import org.activehome.com.RequestCallback;
 import org.activehome.com.error.Error;
@@ -42,7 +41,6 @@ import org.activehome.context.data.UserInfo;
  * Dedicated handler for context request.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class ContextRequestHandler implements RequestHandler {
 
@@ -104,7 +102,6 @@ public class ContextRequestHandler implements RequestHandler {
     }
 
     /**
-     *
      * @param callback Json containing all the available metrics
      *                 with their values
      */
@@ -154,17 +151,34 @@ public class ContextRequestHandler implements RequestHandler {
                                         final double iteration,
                                         final double shift,
                                         final RequestCallback callback) {
-        service.extractSampleData(contextRequest, (int) iteration, (long) shift, callback);
+        service.extractSampleData(contextRequest,
+                (int) iteration, (long) shift, callback);
     }
 
+    /**
+     * Extract a Schedule from the context.
+     *
+     * @param start       When start the extract
+     * @param duration    Duration of the extract
+     * @param granularity Duration of each step
+     * @param metricArray Metrics to extract
+     * @param callback    The callback to reply
+     */
     public final void extractSchedule(final double start,
                                       final double duration,
                                       final double granularity,
                                       final String[] metricArray,
                                       final RequestCallback callback) {
-        service.extractSchedule((long) start, (long) duration, (long) granularity, metricArray, callback);
+        service.extractSchedule((long) start, (long) duration,
+                (long) granularity, metricArray, callback);
     }
 
+    /**
+     * Add new triggers to the context.
+     *
+     * @param triggerArray Triggers
+     * @return true
+     */
     public final boolean addTriggers(final Trigger[] triggerArray) {
         for (Trigger trigger : triggerArray) {
             if (trigger.getResultMetric().equals("")) {

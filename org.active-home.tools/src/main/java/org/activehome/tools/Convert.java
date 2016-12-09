@@ -29,7 +29,6 @@ package org.activehome.tools;
  * This class facilitate conversions.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public final class Convert {
 

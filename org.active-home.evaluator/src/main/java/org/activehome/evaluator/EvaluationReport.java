@@ -32,7 +32,6 @@ import java.util.HashMap;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class EvaluationReport {
 

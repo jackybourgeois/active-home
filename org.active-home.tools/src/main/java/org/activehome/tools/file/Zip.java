@@ -38,7 +38,6 @@ import java.util.zip.ZipInputStream;
  * This class facilitate zip stuff.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public final class Zip {
 

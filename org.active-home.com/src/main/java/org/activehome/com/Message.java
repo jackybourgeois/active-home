@@ -1,16 +1,16 @@
 package org.activehome.com;
 
-/*
+/*-
  * #%L
  * Active Home :: Com
  * $Id:$
  * $HeadURL:$
  * %%
- * Copyright (C) 2016 org.active-home
+ * Copyright (C) 2016 Active Home Project
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the 
+ * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -18,12 +18,11 @@ package org.activehome.com;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public 
+ * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-
 
 import com.eclipsesource.json.JsonObject;
 
@@ -34,7 +33,6 @@ import java.util.UUID;
  * The Message is the generic communication in Active Home.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public abstract class Message implements Serializable {
 
@@ -156,19 +154,19 @@ public abstract class Message implements Serializable {
     }
 
 
-    public long getSequenceNumber() {
+    public final long getSequenceNumber() {
         return sequenceNumber;
     }
 
-    public void setSequenceNumber(final long theSequenceNumber) {
+    public final void setSequenceNumber(final long theSequenceNumber) {
         sequenceNumber = theSequenceNumber;
     }
 
-    public String getSequence() {
+    public final String getSequence() {
         return sequence;
     }
 
-    public void setSequence(final String theSequence) {
+    public final void setSequence(final String theSequence) {
         sequence = theSequence;
     }
 }

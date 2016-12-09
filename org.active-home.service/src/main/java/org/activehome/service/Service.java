@@ -1,16 +1,16 @@
 package org.activehome.service;
 
-/*
+/*-
  * #%L
  * Active Home :: Service
  * $Id:$
  * $HeadURL:$
  * %%
- * Copyright (C) 2016 org.active-home
+ * Copyright (C) 2016 Active Home Project
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the 
+ * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -18,19 +18,27 @@ package org.activehome.service;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public 
+ * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
 
-
 import com.eclipsesource.json.JsonObject;
-import org.activehome.com.*;
+import org.activehome.com.Notif;
+import org.activehome.com.Request;
+import org.activehome.com.RequestCallback;
+import org.activehome.com.Response;
+import org.activehome.com.ShowIfErrorCallback;
 import org.activehome.com.error.ErrorType;
 import org.activehome.com.error.Error;
 import org.activehome.time.TimeControlled;
-import org.kevoree.annotation.*;
+import org.kevoree.annotation.ComponentType;
+import org.kevoree.annotation.Input;
+import org.kevoree.annotation.KevoreeInject;
+import org.kevoree.annotation.Output;
+import org.kevoree.annotation.Param;
+import org.kevoree.annotation.Start;
 import org.kevoree.api.ModelService;
 import org.kevoree.api.handler.ModelListener;
 import org.kevoree.api.handler.UpdateContext;
@@ -45,9 +53,9 @@ import java.util.UUID;
  * A Service handle Requests and provide Responses.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "A Service handle "
+        + "Requests and provide Responses")
 public abstract class Service extends TimeControlled implements ModelListener {
 
     /**
@@ -67,11 +75,12 @@ public abstract class Service extends TimeControlled implements ModelListener {
      */
     private HashMap<UUID, RequestCallback> waitingRequest;
     /**
-     * The timestamp of the last attempt to remove expired requests
+     * The timestamp of the last attempt to remove expired requests.
      */
     private long lastCheckExpiredRequests = 0;
-
-
+    /**
+     * Access to Kevoree's model.
+     */
     @KevoreeInject
     private ModelService modelService;
     /**
@@ -138,7 +147,8 @@ public abstract class Service extends TimeControlled implements ModelListener {
                         method.invoke(service, params);
                     } else {
                         StringBuilder sb = new StringBuilder();
-                        sb.append("Unknown Method '").append(methodName).append("' => ");
+                        sb.append("Unknown Method '");
+                        sb.append(methodName).append("' => ");
                         for (Class clazz : classArray) {
                             sb.append(clazz.getSimpleName()).append(" ");
                         }
@@ -146,20 +156,7 @@ public abstract class Service extends TimeControlled implements ModelListener {
                                 sb.toString()).toJson());
                     }
                 }
-            } catch (InvocationTargetException e) {
-                e.printStackTrace();
-                logError("in getRequest - " + reqStr);
-                logInfo("Method: " + method);
-                if (params != null) {
-                    for (int i = 0; i < classArray.length; i++) {
-                        logInfo("param " + i + ": " + params[i].getClass());
-                    }
-                } else {
-                    logError("Params is null.");
-                }
-                response(request, new Error(ErrorType.METHOD_ERROR,
-                        e.getMessage() + "").toJson());
-            } catch (IllegalArgumentException e) {
+            } catch (InvocationTargetException | IllegalArgumentException e) {
                 e.printStackTrace();
                 logError("in getRequest - " + reqStr);
                 logInfo("Method: " + method);
@@ -242,8 +239,11 @@ public abstract class Service extends TimeControlled implements ModelListener {
      * @param request The received request
      * @return The request handler
      */
-    protected abstract RequestHandler getRequestHandler(final Request request);
+    protected abstract RequestHandler getRequestHandler(Request request);
 
+    /**
+     * If override, this method should be called first.
+     */
     @Start
     public void start() {
         super.start();
@@ -267,7 +267,7 @@ public abstract class Service extends TimeControlled implements ModelListener {
      * @return Kevoree node running the component
      */
     public final String getNode() {
-        if (context !=null) {
+        if (context != null) {
             return context.getNodeName();
         }
         return "ah";
@@ -280,7 +280,7 @@ public abstract class Service extends TimeControlled implements ModelListener {
         if (context != null) {
             return context.getNodeName() + "." + context.getInstanceName();
         }
-        return  "ah." + getClass().getSimpleName();
+        return "ah." + getClass().getSimpleName();
     }
 
     /**
@@ -335,7 +335,8 @@ public abstract class Service extends TimeControlled implements ModelListener {
                 numRequestParameters = parameterTypes.length;
             }
             if (method.getParameterTypes().length == numRequestParameters) {
-                // If we have the same number of parameters there is a shot that we have a compatible method
+                // If we have the same number of parameters there is
+                // a shot that we have a compatible method.
                 Class<?>[] constructorTypes = method.getParameterTypes();
                 boolean isCompatible = true;
                 for (int j = 0; j < (parameterTypes != null ? parameterTypes.length : 0); j++) {
@@ -448,18 +449,18 @@ public abstract class Service extends TimeControlled implements ModelListener {
     }
 
     /**
-     * Set a listener on a specific API
+     * Set a listener on a specific API.
      */
     protected void listenAPI(final String apiFullId,
                              final String handler,
                              final boolean authentication) {
-        sendRequest(new Request(getFullId(), apiFullId, getCurrentTime(),
-                        "addHandler", new Object[]{handler, getFullId(), authentication}),
+        sendRequest(new Request(getFullId(), apiFullId, getCurrentTime(), "addHandler",
+                        new Object[]{handler, getFullId(), authentication}),
                 new ShowIfErrorCallback());
     }
 
     /**
-     * Request a subscription to the context for a series of metrics
+     * Request a subscription to the context for a series of metrics.
      */
     protected void subscribeToContext(final String... metricIds) {
         Request request = new Request(getFullId(), getNode() + ".context",
@@ -494,11 +495,11 @@ public abstract class Service extends TimeControlled implements ModelListener {
         return out;
     }
 
-    public final void logInfo(String log) {
+    public final void logInfo(final String log) {
         Log.info("[" + getFullId() + " - " + strLocalTime() + "] " + log);
     }
 
-    public final void logError(String log) {
+    public final void logError(final String log) {
         Log.error("[" + getFullId() + " - " + strLocalTime() + "] " + log);
     }
 
@@ -515,11 +516,11 @@ public abstract class Service extends TimeControlled implements ModelListener {
 
 
     @Override
-    public void preRollback(UpdateContext updateContext) {
+    public void preRollback(final UpdateContext updateContext) {
     }
 
     @Override
-    public void postRollback(UpdateContext updateContext) {
+    public void postRollback(final UpdateContext updateContext) {
     }
 
     @Override

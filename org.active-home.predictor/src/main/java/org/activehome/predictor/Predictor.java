@@ -39,13 +39,15 @@ import org.activehome.com.ScheduledRequest;
 import org.activehome.context.data.MetricRecord;
 import org.activehome.service.RequestHandler;
 import org.activehome.service.Service;
-import org.activehome.tools.file.FileHelper;
 
 /**
+ * An predictor produces prediction values
+ * (as DataPoints, MetricRecords or Schedules).
+ *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "An predictor produces "
+        + "prediction values (as DataPoints, MetricRecords or Schedules)")
 public abstract class Predictor
         extends Service implements RequestHandler {
 
@@ -72,12 +74,19 @@ public abstract class Predictor
     @Output
     private org.kevoree.api.Port toSchedule;
 
+    /**
+     * If override, this method should be called first.
+     */
     @Start
     public void start() {
         super.start();
         predictionHistory = new HashMap<>();
     }
 
+    /**
+     * If override, this method should be called first.
+     */
+    @Override
     public void onInit() {
         super.onInit();
         predictionHistory = new HashMap<>();
@@ -91,10 +100,10 @@ public abstract class Predictor
      * @param granularity Duration of each time slot
      * @param callback    where we send the result
      */
-    public abstract void predict(final long startTS,
-                                 final long duration,
-                                 final long granularity,
-                                 final RequestCallback callback);
+    public abstract void predict(long startTS,
+                                 long duration,
+                                 long granularity,
+                                 RequestCallback callback);
 
     /**
      * Keep track of the prediction and schedule
@@ -102,7 +111,8 @@ public abstract class Predictor
      *
      * @param metricRecord The new prediction
      */
-    protected final void addPredictionToHistory(final MetricRecord metricRecord) {
+    protected final void addPredictionToHistory(
+            final MetricRecord metricRecord) {
         UUID predictionId = UUID.randomUUID();
         predictionHistory.put(predictionId, metricRecord);
         ScheduledRequest sr = new ScheduledRequest(getFullId(), getFullId(),
@@ -111,10 +121,16 @@ public abstract class Predictor
         sendToTaskScheduler(sr);
     }
 
+    /**
+     * @return The predicted metric.
+     */
     public final String getMetric() {
         return metric;
     }
 
+    /**
+     * @return true if the predicted values are discrete, false otherwise.
+     */
     public final boolean isDiscrete() {
         return discrete;
     }
@@ -135,12 +151,14 @@ public abstract class Predictor
 //                isDiscrete(), predictionMR.getStartTime(), granularity,
 //                granularity, records.size(), "", "");
 //        Request ctxRequest = new Request(getFullId(), getNode() + ".context",
-//                getCurrentTime(), "extractSampleData", new Object[]{ctxReq, 1, 1});
+//                getCurrentTime(), "extractSampleData",
+//                        new Object[]{ctxReq, 1, 1});
 //        sendRequest(ctxRequest, new RequestCallback() {
 //            @Override
 //            public void success(final Object result) {
 //                MetricRecord actualMR = ((ContextResponse) result)
-//                        .getResultMap().get(0).getMetricRecordMap().getFirst();
+//                        .getResultMap().get(0)
+//                        .getMetricRecordMap().getFirst();
 //                StringBuilder sb = new StringBuilder();
 //                sb.append(strLocalTime(predictionMR.getStartTime()));
 //                for (Record record : actualMR.getRecords()) {
@@ -152,7 +170,8 @@ public abstract class Predictor
 //                DataPoint dp = new DataPoint("eval." + getId() + ".rmsd",
 //                        getCurrentTime(), rmsd + "");
 //                logInfo("RMSD: " + rmsd);
-//                FileHelper.logln(strLocalTime(predictionMR.getStartTime()) + "," + rmsd, "rmsd.csv");
+//                FileHelper.logln(strLocalTime(predictionMR.getStartTime())
+//                            + "," + rmsd, "rmsd.csv");
 //                sendNotif(new Notif(getFullId(), getNode() + ".context",
 //                        getCurrentTime(), dp));
 //            }
@@ -190,7 +209,7 @@ public abstract class Predictor
      *
      * @param predicted Predicted values
      * @param actual    Actual values
-     * @return
+     * @return deviation
      */
     private double rmsd(final MetricRecord predicted,
                         final MetricRecord actual) {
@@ -198,7 +217,8 @@ public abstract class Predictor
         for (int i = 0; i < actual.getRecords().size(); i++) {
             double predictedVal = predicted.getRecords().get(i).getDouble();
             double actualVal = actual.getRecords().get(i).getDouble();
-            sumSquare += (predictedVal - actualVal) * (predictedVal - actualVal);
+            sumSquare += (predictedVal - actualVal)
+                    * (predictedVal - actualVal);
         }
         return Math.sqrt(sumSquare / (actual.getRecords().size() - 1));
     }

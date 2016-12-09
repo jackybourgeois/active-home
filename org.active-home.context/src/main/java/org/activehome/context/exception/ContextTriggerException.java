@@ -30,7 +30,6 @@ package org.activehome.context.exception;
  * or a default value is missing.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class ContextTriggerException extends Exception {
 

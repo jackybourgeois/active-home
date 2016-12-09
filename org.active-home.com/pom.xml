@@ -11,6 +11,7 @@
     <artifactId>org.active-home.com</artifactId>
     <packaging>jar</packaging>
     <name>Active Home :: Com</name>
+    <description>Communication helpers for messages exchanged between Active Home components.</description>
 
     <dependencies>
         <dependency>

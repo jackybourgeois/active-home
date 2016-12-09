@@ -33,7 +33,6 @@ import java.util.HashMap;
  * A Metric describe a computed or collected value.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class Metric {
 

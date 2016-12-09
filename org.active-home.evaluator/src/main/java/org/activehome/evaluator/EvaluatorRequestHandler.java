@@ -31,7 +31,6 @@ import org.activehome.service.RequestHandler;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class EvaluatorRequestHandler implements RequestHandler {
 

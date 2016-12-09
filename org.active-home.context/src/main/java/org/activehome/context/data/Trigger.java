@@ -34,7 +34,6 @@ import java.util.UUID;
  * data based on new DataPoint.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class Trigger {
 

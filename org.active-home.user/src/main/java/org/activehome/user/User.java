@@ -33,7 +33,12 @@ import org.activehome.com.Response;
 import org.activehome.com.error.ErrorType;
 import org.activehome.com.error.Error;
 import org.activehome.time.TimeControlled;
-import org.kevoree.annotation.*;
+import org.kevoree.annotation.ComponentType;
+import org.kevoree.annotation.Input;
+import org.kevoree.annotation.KevoreeInject;
+import org.kevoree.annotation.Output;
+import org.kevoree.annotation.Param;
+import org.kevoree.annotation.Start;
 import org.kevoree.api.ModelService;
 import org.kevoree.api.Port;
 import org.kevoree.log.Log;
@@ -44,13 +49,11 @@ import java.util.UUID;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "The hub between "
+        + "the physical user and the system.")
 public class User extends TimeControlled {
 
-    @Param(defaultValue = "The hub between the physical user and the system.")
-    private String description;
     @Param(defaultValue = "/active-home/tree/master/org.active-home.user")
     private String src;
 
@@ -115,7 +118,6 @@ public class User extends TimeControlled {
                 this.getClass().getClassLoader());
         JsonObject json = JsonObject.readFrom(msgStr);
         Message message;
-//        System.out.println(getFullId() + " received: " + msgStr);
         if (json.get("method") != null) {
             message = new Request(JsonObject.readFrom(msgStr));
         } else if (json.get("result") != null) {
@@ -124,34 +126,39 @@ public class User extends TimeControlled {
             message = new Notif(JsonObject.readFrom(msgStr));
         }
         if (message.getSrc().contains("://" + getFullId() + "@")) {
-            String[] src = message.getSrc().split("(://)|@|:");
-//            System.out.println("size src array: " + src.length);
-            if (src.length > 2 && src[1].compareTo(getFullId()) == 0) {
+            String[] msgSrc = message.getSrc().split("(://)|@|:");
+            if (msgSrc.length > 2 && msgSrc[1].compareTo(getFullId()) == 0) {
                 if (message instanceof Notif) {
                     Notif notif = (Notif) message;
                     // TODO
                 } else if (message instanceof Request) {
-                    Request request = (Request) message;
-                    if (checkRight(request)) {
-                        Request req = new Request(getFullId(),
-                                request.getDest(), getCurrentTime(),
-                                request.getMethod(), request.getParams());
-                        req.getEnviElem().putAll(request.getEnviElem());
-                        req.getEnviElem().put("api", src[0] + "://" + src[2]);
-                        waitingRequest.put(req.getId(), request);
-                        pushRequest.send(req.toString(), null);
-                    } else {
-                        Error error = new Error(ErrorType.PERMISSION_DENIED,
-                                "Request " + request.getMethod()
-                                        + " requires a higher level of permission.");
-                        toAPI.send(new Response(request.getId(), getFullId(),
-                                request.getSrc(), getCurrentTime(),
-                                error.toJson()).toString(), null);
-                    }
+                    manageRequestFromAPI((Request) message,
+                            msgSrc[0], msgSrc[2]);
                 }
             }
         }
 
+    }
+
+    private void manageRequestFromAPI(final Request request,
+                                      final String apiName,
+                                      final String destName) {
+        if (checkRight(request)) {
+            Request req = new Request(getFullId(),
+                    request.getDest(), getCurrentTime(),
+                    request.getMethod(), request.getParams());
+            req.getEnviElem().putAll(request.getEnviElem());
+            req.getEnviElem().put("api", apiName + "://" + destName);
+            waitingRequest.put(req.getId(), request);
+            pushRequest.send(req.toString(), null);
+        } else {
+            Error error = new Error(ErrorType.PERMISSION_DENIED,
+                    "Request " + request.getMethod()
+                            + " requires a higher level of permission.");
+            toAPI.send(new Response(request.getId(), getFullId(),
+                    request.getSrc(), getCurrentTime(),
+                    error.toJson()).toString(), null);
+        }
     }
 
     /**
@@ -195,6 +202,9 @@ public class User extends TimeControlled {
         waitingRequest = new HashMap<>();
     }
 
+    /**
+     * If override, this method should be called first.
+     */
     @Override
     public void onInit() {
         super.onInit();
@@ -254,7 +264,7 @@ public class User extends TimeControlled {
     }
 
     /**
-     * @param notif  The notif to send
+     * @param notif The notif to send
      */
     public final void sendNotif(final Notif notif) {
         if (pushNotif != null && pushNotif.getConnectedBindingsSize() > 0) {
@@ -262,11 +272,11 @@ public class User extends TimeControlled {
         }
     }
 
-    protected final void logInfo(String message) {
+    protected final void logInfo(final String message) {
         Log.info("[" + getFullId() + " - " + strLocalTime() + "] " + message);
     }
 
-    protected final void logError(String message) {
+    protected final void logError(final String message) {
         Log.error("[" + getFullId() + " - " + strLocalTime() + "] " + message);
     }
 

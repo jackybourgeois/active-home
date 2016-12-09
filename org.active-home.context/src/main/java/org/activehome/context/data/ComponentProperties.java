@@ -36,7 +36,6 @@ import java.util.LinkedList;
  * Description of a Kevoree component to be start.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class ComponentProperties {
 

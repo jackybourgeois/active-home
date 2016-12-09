@@ -25,32 +25,33 @@ package org.activehome.user;
  */
 
 
-import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
-import com.eclipsesource.json.JsonValue;
 import org.activehome.context.data.Episode;
-import org.activehome.context.data.Event;
-import org.activehome.context.data.Transformation;
-import org.activehome.io.action.Action;
 
-import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.UUID;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class UserSuggestion {
 
+    /**
+     * Unique Id (random).
+     */
     private UUID id;
+    /**
+     * The detail of the suggestion.
+     */
     private Episode episode;
-    private long expireTS;
+    /**
+     * When the suggestion will not be expired (UNIX timestamp).
+     * Default: -1, no expiration time
+     */
+    private long expireTS = -1;
 
-    public UserSuggestion(final Episode episode) {
+    public UserSuggestion(final Episode anEpisode) {
         id = UUID.randomUUID();
-        this.episode = episode;
-        this.expireTS = -1;
+        episode = anEpisode;
     }
 
     public UserSuggestion(final JsonObject json) {
@@ -59,6 +60,27 @@ public class UserSuggestion {
         this.expireTS = json.get("expireTS").asLong();
     }
 
+    public final UUID getId() {
+        return id;
+    }
+
+    public final Episode getEpisode() {
+        return episode;
+    }
+
+    public final long getExpireTS() {
+        return expireTS;
+    }
+
+    public final void setExpireTS(final long anExpireTS) {
+        expireTS = anExpireTS;
+    }
+
+    /**
+     * Convert the UserSuggestion into Json.
+     *
+     * @return the Json
+     */
     public final JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.add("type", UserSuggestion.class.getName());
@@ -68,24 +90,11 @@ public class UserSuggestion {
         return json;
     }
 
+    /**
+     * @return The Json as String
+     */
     @Override
     public final String toString() {
         return toJson().toString();
-    }
-
-    public UUID getId() {
-        return id;
-    }
-
-    public Episode getEpisode() {
-        return episode;
-    }
-
-    public long getExpireTS() {
-        return expireTS;
-    }
-
-    public void setExpireTS(long expireTS) {
-        this.expireTS = expireTS;
     }
 }

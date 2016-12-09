@@ -39,9 +39,8 @@ import org.kevoree.log.Log;
  * It can be connected to a physical device or completely virtual.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "An IO, for Input/Output, is a provider of raw data or control.")
 public abstract class IO extends TimeControlled implements ModelListener {
 
     /**

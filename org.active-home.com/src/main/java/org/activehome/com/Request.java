@@ -1,16 +1,16 @@
 package org.activehome.com;
 
-/*
+/*-
  * #%L
  * Active Home :: Com
  * $Id:$
  * $HeadURL:$
  * %%
- * Copyright (C) 2016 org.active-home
+ * Copyright (C) 2016 Active Home Project
  * %%
  * This program is free software: you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the 
+ * published by the Free Software Foundation, either version 3 of the
  * License, or (at your option) any later version.
  * 
  * This program is distributed in the hope that it will be useful,
@@ -18,12 +18,11 @@ package org.activehome.com;
  * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
  * GNU General Public License for more details.
  * 
- * You should have received a copy of the GNU General Public 
+ * You should have received a copy of the GNU General Public
  * License along with this program.  If not, see
  * <http://www.gnu.org/licenses/gpl-3.0.html>.
  * #L%
  */
-
 
 import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
@@ -35,10 +34,12 @@ import java.util.HashMap;
  * A request is a message which require a response.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class Request extends Message {
 
+    /**
+     * Default timeout to consider a message as expired.
+     */
     public static final long DEFAULT_TIMEOUT = 15000;
 
     /**

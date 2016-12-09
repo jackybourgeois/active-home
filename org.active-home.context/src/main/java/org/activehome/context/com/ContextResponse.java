@@ -34,11 +34,16 @@ import java.util.TreeMap;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class ContextResponse {
 
+    /**
+     * Origin request.
+     */
     private ContextRequest request;
+    /**
+     * Result map iteration number/result as schedule
+     */
     private TreeMap<Integer, Schedule> resultMap;
 
     public ContextResponse(final ContextRequest theRequest,
@@ -52,20 +57,25 @@ public class ContextResponse {
         resultMap = new TreeMap<>();
         for (JsonValue jsonValue : json.asObject().get("result").asArray()) {
             Integer key = jsonValue.asObject().get("iteration").asInt();
-            Schedule schedule = new Schedule(jsonValue.asObject().get("schedule").asObject());
+            Schedule schedule = new Schedule(
+                    jsonValue.asObject().get("schedule").asObject());
             resultMap.put(key, schedule);
         }
     }
 
-    public ContextRequest getRequest() {
+    public final ContextRequest getRequest() {
         return request;
     }
 
-    public TreeMap<Integer, Schedule> getResultMap() {
+    public final TreeMap<Integer, Schedule> getResultMap() {
         return resultMap;
     }
 
-    public JsonObject toJson() {
+
+    /**
+     * @return The error as Json
+     */
+    public final JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.add("type", ContextResponse.class.getName());
         json.add("request", request.toJson());
@@ -80,7 +90,11 @@ public class ContextResponse {
         return json;
     }
 
-    public String toString() {
+    /**
+     * @return Json as string
+     */
+    @Override
+    public final String toString() {
         return toJson().toString();
     }
 }

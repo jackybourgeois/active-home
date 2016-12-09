@@ -29,21 +29,19 @@ import com.eclipsesource.json.JsonObject;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class SampledRecord extends Record {
 
     /**
-     * Duration of the sample in milliseconds
+     * Duration of the sample in milliseconds.
      */
     private long duration;
 
     /**
-     *
-     * @param value     The value of the record
-     * @param timestamp The time since the MetricRecord started
-     * @param theDuration  The duration of the sample in milliseconds
-     * @param confidence Confidence of the sample
+     * @param value       The value of the record
+     * @param timestamp   The time since the MetricRecord started
+     * @param theDuration The duration of the sample in milliseconds
+     * @param confidence  Confidence of the sample
      */
     public SampledRecord(final String value,
                          final long timestamp,
@@ -53,6 +51,11 @@ public class SampledRecord extends Record {
         duration = theDuration;
     }
 
+    /**
+     * @param value       The value of the record
+     * @param timestamp   The time since the MetricRecord started
+     * @param theDuration The duration of the sample in milliseconds
+     */
     public SampledRecord(final String value,
                          final long timestamp,
                          final long theDuration) {
@@ -68,6 +71,9 @@ public class SampledRecord extends Record {
         duration = json.getLong("duration", 0);
     }
 
+    /**
+     * @return the record's duration in milliseconds
+     */
     public final long getDuration() {
         return duration;
     }

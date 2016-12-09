@@ -33,7 +33,6 @@ import java.util.Properties;
  * Couple of utilities that does not fit anywhere else!
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public final  class Util {
 

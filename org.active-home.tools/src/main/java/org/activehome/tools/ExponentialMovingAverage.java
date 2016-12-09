@@ -28,7 +28,6 @@ package org.activehome.tools;
 /**
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class ExponentialMovingAverage {
 

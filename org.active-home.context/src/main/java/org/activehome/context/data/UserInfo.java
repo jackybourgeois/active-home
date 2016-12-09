@@ -32,7 +32,6 @@ import com.eclipsesource.json.JsonObject;
  * Embedded in Request, UserInfo provides the details on the user.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class UserInfo {
 

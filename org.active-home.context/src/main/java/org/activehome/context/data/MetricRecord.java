@@ -39,7 +39,6 @@ import java.util.List;
  * It is composed of Records
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class MetricRecord {
 

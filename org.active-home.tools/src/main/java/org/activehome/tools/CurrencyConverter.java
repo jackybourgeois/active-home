@@ -34,7 +34,6 @@ import java.net.URL;
  * This class facilitate currency conversion.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public final class CurrencyConverter {
 

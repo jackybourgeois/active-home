@@ -42,7 +42,6 @@ import java.util.Base64;
  * This class facilitate reading from/saving into files.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public final class FileHelper {
 

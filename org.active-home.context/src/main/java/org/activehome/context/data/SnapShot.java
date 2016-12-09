@@ -29,10 +29,9 @@ import java.util.LinkedList;
 import java.util.stream.Collectors;
 
 /**
- * Snapshot of all the metrics in a schedule at a given time
+ * Snapshot of all the metrics in a schedule at a given time.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class SnapShot {
 
@@ -55,15 +54,22 @@ public class SnapShot {
         }
     }
 
+    /**
+     * Go to the slice of schedule.
+     * @return true if next slice exist, false otherwise
+     */
     public boolean next() {
         long nextTS = -1;
+        // look for the shortest duration to the next record
         for (SnapShotItem item : snapShotItems) {
             if (item.currentIndex < item.getRecords().size() - 1) {
-                if (nextTS == -1 || item.getRecords().get(item.currentIndex + 1).getTS() < nextTS) {
-                    nextTS = item.getRecords().get(item.currentIndex + 1).getTS();
+                long potentialNext = item.getRecords().get(item.currentIndex + 1).getTS();
+                if (potentialNext > ts && (nextTS == -1 || potentialNext < nextTS)) {
+                    nextTS = potentialNext;
                 }
             }
         }
+        // move forward all items with the ts has nextTS
         if (nextTS != -1) {
             for (SnapShotItem item : snapShotItems) {
                 if (item.currentIndex < item.getRecords().size() - 1) {
@@ -152,7 +158,9 @@ public class SnapShot {
         private int currentIndex;
         private int previousIndex;
 
-        public SnapShotItem(String metricId, String version, LinkedList<Record> records) {
+        public SnapShotItem(final String metricId,
+                            final String version,
+                            final LinkedList<Record> records) {
             this.metricId = metricId;
             this.version = version;
             this.records = records;

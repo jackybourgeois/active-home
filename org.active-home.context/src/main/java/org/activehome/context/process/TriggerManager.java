@@ -27,12 +27,22 @@ package org.activehome.context.process;
 
 import org.activehome.com.error.Error;
 import org.activehome.context.Context;
-import org.activehome.context.data.*;
+import org.activehome.context.data.DataPoint;
+import org.activehome.context.data.MetricRecord;
+import org.activehome.context.data.Schedule;
+import org.activehome.context.data.SnapShot;
+import org.activehome.context.data.Trigger;
 import org.activehome.context.exception.ContextTriggerException;
 import org.kevoree.log.Log;
 
 import java.text.DecimalFormat;
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Iterator;
+import java.util.LinkedList;
+import java.util.Map;
+import java.util.Set;
+import java.util.UUID;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -42,7 +52,6 @@ import java.util.stream.Collectors;
  * Manage control and computation that follow new DataPoint entries.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class TriggerManager {
 
@@ -75,6 +84,7 @@ public class TriggerManager {
 
     /**
      * Add new control trigger: a check and correction of the new DataPoint.
+     *
      * @param trigger the trigger to add
      */
     public final void addCtrlTrigger(final Trigger trigger) {
@@ -87,6 +97,7 @@ public class TriggerManager {
     /**
      * Add new use trigger: a computation following the new DataPoint,
      * generating yet another DataPoint.
+     *
      * @param trigger the trigger to add
      */
     public final void addUseTrigger(final Trigger trigger) {
@@ -183,7 +194,8 @@ public class TriggerManager {
 
     /**
      * Check use triggers over a period.
-     * @param newMR the incoming MetricRecord
+     *
+     * @param newMR               the incoming MetricRecord
      * @param environmentSchedule the current environment
      * @return list of updated MetricRecords
      */
@@ -225,7 +237,7 @@ public class TriggerManager {
         SnapShot snapShot = new SnapShot(environmentSchedule);
         while (snapShot.next()) {
             DataPoint triggerDP = snapShot.getCurrentDP(newMR.getMetricId(), newMR.getMainVersion());
-            if (triggerDP!=null) {
+            if (triggerDP != null) {
                 String infix = null;
                 try {
                     infix = replacePathInCondition(expression, triggerDP, snapShot);
@@ -343,6 +355,7 @@ public class TriggerManager {
     /**
      * @param expression The infix expression to evaluate
      * @param triggerDP  The new DataPoint which triggered the evaluation
+     * @param snapshot   The current snapshot
      * @return Infix ready to be evaluated
      * @throws ContextTriggerException Missing value or alternative value
      */
@@ -526,7 +539,7 @@ public class TriggerManager {
         }
     }
 
-    public final String[] getMetricTriggeredBy(String metricId) {
+    public final String[] getMetricTriggeredBy(final String metricId) {
         Set<String> metrics = new HashSet<>();
 
         LinkedList<String> changes = new LinkedList<>();
@@ -545,7 +558,7 @@ public class TriggerManager {
         return metrics.toArray(new String[metrics.size()]);
     }
 
-    public final Set<String> extractVariable(String expression) {
+    public final Set<String> extractVariable(final String expression) {
         Set<String> metrics = new HashSet<>();
         Matcher m = Pattern.compile("\\$\\{([^}]+)\\}").matcher(expression);
         while (m.find()) {

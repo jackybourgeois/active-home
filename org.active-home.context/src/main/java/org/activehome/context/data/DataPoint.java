@@ -32,7 +32,6 @@ import com.eclipsesource.json.JsonObject;
  * liking a metric, a time-stamp and a value.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class DataPoint {
 
@@ -49,15 +48,18 @@ public class DataPoint {
      */
     private final String value;
     /**
-     * version (default = '0')
+     * version (default = '0').
      */
     private final String version;
     /**
-     * shift in time, milliseconds (default = 0)
+     * shift in time, milliseconds (default = 0).
      */
     private final long shift;
     /**
-     * How reliable is this datapoint (between 0 and 1).
+     * How reliable is this DataPoint.
+     * 1 means normal, collected data
+     * <1 means predicted (thus uncertain) data
+     * 1> means corrected (improved from collected data)
      */
     private final double confidence;
 
@@ -132,14 +134,23 @@ public class DataPoint {
         return value;
     }
 
+    /**
+     * @return The confidence of the data point
+     */
     public final double getConfidence() {
         return confidence;
     }
 
+    /**
+     * @return The version of the data point
+     */
     public String getVersion() {
         return version;
     }
 
+    /**
+     * @return The time shift of the data point
+     */
     public long getShift() {
         return shift;
     }

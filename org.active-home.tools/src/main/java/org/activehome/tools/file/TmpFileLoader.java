@@ -34,7 +34,6 @@ import java.net.URL;
  * This class facilitate loading of temporary files.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class TmpFileLoader {
 

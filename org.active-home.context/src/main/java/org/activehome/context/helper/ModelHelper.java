@@ -45,7 +45,6 @@ import java.util.List;
  * Utility class for common Kevoree model manipulation.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public final class ModelHelper {
 

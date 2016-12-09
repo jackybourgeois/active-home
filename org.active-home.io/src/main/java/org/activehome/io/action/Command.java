@@ -29,7 +29,6 @@ package org.activehome.io.action;
  * Command send to IO for control.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public enum Command {
 
@@ -77,7 +76,7 @@ public enum Command {
      */
     REFRESH,
     /**
-     * Update the frequency, take one parameter of time interval
+     * Update the frequency, take one parameter of time interval.
      */
     PACE,
     /**

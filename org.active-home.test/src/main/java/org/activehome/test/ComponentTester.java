@@ -36,7 +36,11 @@ import org.activehome.service.Service;
 import org.activehome.tools.Convert;
 import org.activehome.tools.file.FileHelper;
 import org.activehome.context.data.UserInfo;
-import org.kevoree.annotation.*;
+import org.kevoree.annotation.ComponentType;
+import org.kevoree.annotation.KevoreeInject;
+import org.kevoree.annotation.Output;
+import org.kevoree.annotation.Param;
+import org.kevoree.annotation.Start;
 import org.kevoree.api.ModelService;
 import org.kevoree.api.handler.ModelListener;
 import org.kevoree.api.handler.UpdateContext;
@@ -45,24 +49,24 @@ import org.kevoree.api.handler.UpdateContext;
  * Mock component to simulate behaviour and test components.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "Mock component "
+        + "to simulate behaviour and test components")
 public abstract class ComponentTester extends Service
         implements RequestHandler, ModelListener {
 
     /**
-     * Start date of the test
+     * Start date of the test.
      */
     @Param(optional = false)
     protected String startDate;
     /**
-     * Time duration of the test
+     * Time duration of the test.
      */
     @Param(defaultValue = "1d")
     private String testDuration;
     /**
-     * log file
+     * Log file.
      */
     @Param(defaultValue = "test.log")
     private String logFile;

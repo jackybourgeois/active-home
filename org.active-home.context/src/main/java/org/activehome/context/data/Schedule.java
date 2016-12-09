@@ -34,15 +34,32 @@ import java.util.LinkedList;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class Schedule {
 
+    /**
+     * A name, to differentiate between schedules.
+     */
     private String name;
+    /**
+     * When the Schedule start (UNIX timestamp).
+     */
     private long start;
+    /**
+     * horizon / duration of the schedule (milliseconds).
+     */
     private final long horizon;
+    /**
+     * duration of each steps (milliseconds).
+     */
     private final long granularity;
+    /**
+     * Episode of the schedule.
+     */
     private Episode episode;
+    /**
+     * Map of data: metric name / MetricRecord.
+     */
     private final HashMap<String, MetricRecord> metricRecordMap;
 
     public Schedule(final String theName,
@@ -53,8 +70,8 @@ public class Schedule {
         start = theStart;
         horizon = theHorizon;
         granularity = theGranularity;
+        metricRecordMap  = new HashMap<>();
         episode = new Episode();
-        metricRecordMap = new HashMap<>();
     }
 
     public Schedule(final Schedule schedule) {
@@ -72,66 +89,67 @@ public class Schedule {
         horizon = json.get("horizon").asLong();
         granularity = json.get("granularity").asLong();
 
-        if (json.get("episode")!=null) {
+        if (json.get("episode") != null) {
             episode = new Episode(json.get("episode").asObject());
         }
 
         metricRecordMap = new HashMap<>();
         for (JsonValue val : json.get("mr").asArray()) {
             MetricRecord mr = new MetricRecord(val.asObject());
-            metricRecordMap.put(mr.getMetricId(), new MetricRecord(val.asObject()));
+            metricRecordMap.put(mr.getMetricId(),
+                    new MetricRecord(val.asObject()));
         }
     }
 
-    public String getName() {
+    public final String getName() {
         return name;
     }
 
-    public void setName(String theName) {
+    public final void setName(final String theName) {
         name = theName;
     }
 
-    public void setStart(final long theStart) {
+    public final void setStart(final long theStart) {
         start = theStart;
     }
 
-    public long getStart() {
+    public final long getStart() {
         return start;
     }
 
-    public long getGranularity() {
+    public final long getGranularity() {
         return granularity;
     }
 
-    public int getNbSlot() {
+    public final int getNbSlot() {
         return (int) (horizon / granularity);
     }
 
-    public long getHorizon() {
+    public final long getHorizon() {
         return horizon;
     }
 
-    public Episode getEpisode() {
+    public final Episode getEpisode() {
         return episode;
     }
 
-    public void setEpisode(final Episode episode) {
-        this.episode = episode;
+    public final void setEpisode(final Episode anEpisode) {
+        this.episode = anEpisode;
     }
 
-    public HashMap<String, MetricRecord> getMetricRecordMap() {
+    public final HashMap<String, MetricRecord> getMetricRecordMap() {
         return metricRecordMap;
     }
 
 
-    public String[] normalize(final String metricId) {
+    public final String[] normalize(final String metricId) {
         if (metricRecordMap.containsKey(metricId)) {
             return normalize(metricRecordMap.get(metricId));
         }
         return new String[0];
     }
 
-    public double[] normalizeAsDouble(final MetricRecord metricRecord) {
+    public final double[] normalizeAsDouble(final MetricRecord metricRecord) {
         double[] data = new double[getNbSlot()];
         for (int i = 0; i < data.length; i++) {
             data[i] = 0;
@@ -143,15 +161,18 @@ public class Schedule {
         LinkedList<Record> records = metricRecord.getRecords();
         for (Record record : records) {
             currentTS = start + record.getTS();
-            if (currentTS < start + (indexSlot + 1) * granularity) {   // before next slot, set the new val
+            // before next slot, set the new val
+            if (currentTS < start + (indexSlot + 1) * granularity) {
                 value = record.getDouble();
                 data[indexSlot] = value;
             } else {
-                while (currentTS > start + (indexSlot + 1) * granularity) {     // after the next slot, set prev val
+                // after the next slot, set prev val
+                while (currentTS > start + (indexSlot + 1) * granularity) {
                     data[indexSlot] = value;
                     indexSlot++;
                 }
-                value = record.getDouble();          // finally, set the new val, one time
+                // finally, set the new val, one time
+                value = record.getDouble();
                 data[indexSlot] = value;
             }
         }
@@ -163,13 +184,13 @@ public class Schedule {
         return data;
     }
 
-    public HashMap<String, String> snapshopValuesAt(final long ts) {
+    public final HashMap<String, String> snapshopValuesAt(final long ts) {
         HashMap<String, String> snapshotMap = new HashMap<>();
 
         return snapshotMap;
     }
 
-    public String[] normalize(final MetricRecord metricRecord) {
+    public final String[] normalize(final MetricRecord metricRecord) {
         String[] data = new String[getNbSlot()];
         for (int i = 0; i < data.length; i++) {
             data[i] = "";
@@ -181,15 +202,18 @@ public class Schedule {
         LinkedList<Record> records = metricRecord.getRecords();
         for (Record record : records) {
             currentTS = start + record.getTS();
-            if (currentTS < start + (indexSlot + 1) * granularity) {   // before next slot, set the new val
+            // before next slot, set the new val
+            if (currentTS < start + (indexSlot + 1) * granularity) {
                 value = record.getValue();
                 data[indexSlot] = value;
             } else {
-                while (currentTS > start + (indexSlot + 1) * granularity) {     // after the next slot, set prev val
+                // after the next slot, set prev val
+                while (currentTS > start + (indexSlot + 1) * granularity) {
                     data[indexSlot] = value;
                     indexSlot++;
                 }
-                value = record.getValue();          // finally, set the new val, one time
+                // finally, set the new val, one time
+                value = record.getValue();
                 data[indexSlot] = value;
             }
         }
@@ -201,12 +225,20 @@ public class Schedule {
         return data;
     }
 
+    /**
+     * Convert the Schedule into Json.
+     *
+     * @return the Json
+     */
     @Override
-    public String toString() {
+    public final String toString() {
         return toJson().toString();
     }
 
-    public JsonObject toJson() {
+    /**
+     * @return The Json as String
+     */
+    public final JsonObject toJson() {
         JsonObject json = new JsonObject();
 
         json.add("type", Schedule.class.getName());
@@ -214,7 +246,7 @@ public class Schedule {
         json.add("start", start);
         json.add("horizon", horizon);
         json.add("granularity", granularity);
-        if (episode!=null) {
+        if (episode != null) {
             json.add("episode", episode.toJson());
         }
 

@@ -10,6 +10,7 @@
     <artifactId>org.active-home.evaluator</artifactId>
     <packaging>jar</packaging>
     <name>Active Home :: Evaluator</name>
+    <description>Base of an Active Home Evaluator</description>
 
     <dependencies>
         <dependency>
@@ -27,6 +28,10 @@
     <build>
         <plugins>
             <plugin>
+                <groupId>org.kevoree.tools</groupId>
+                <artifactId>org.kevoree.tools.mavenplugin</artifactId>
+            </plugin>
+            <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-compiler-plugin</artifactId>
                 <version>3.1</version>
@@ -35,20 +40,6 @@
                     <target>${jdk.target}</target>
                     <encoding>${project.build.sourceEncoding}</encoding>
                 </configuration>
-            </plugin>
-            <plugin>
-                <groupId>org.kevoree.tools</groupId>
-                <artifactId>org.kevoree.tools.mavenplugin</artifactId>
-                <version>${kevoree.version}</version>
-                <extensions>true</extensions>
-                <executions>
-                    <execution>
-                        <goals>
-                            <goal>generate</goal>
-                            <goal>deploy</goal>
-                        </goals>
-                    </execution>
-                </executions>
             </plugin>
         </plugins>
     </build>

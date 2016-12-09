@@ -27,47 +27,59 @@ package org.activehome.user;
 
 import com.eclipsesource.json.JsonObject;
 import org.activehome.context.data.Event;
-import org.activehome.io.action.Action;
 
-import java.util.HashMap;
 import java.util.UUID;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class UserSuggestionResponse {
 
+    /**
+     * Unique Identifier of the original suggestion.
+     */
     private UUID suggestionId;
+    /**
+     * The related event.
+     */
     private Event event;
+    /**
+     * Should this response be automated by the system?
+     */
     private boolean automatedBySystem;
 
-    public UserSuggestionResponse(final UUID suggestionId,
-                                  final Event event,
-                                  final boolean automatedBySystem) {
-        this.suggestionId = suggestionId;
-        this.event = event;
-        this.automatedBySystem = automatedBySystem;
+    public UserSuggestionResponse(final UUID aSuggestionId,
+                                  final Event anEvent,
+                                  final boolean anAutomatedBySystem) {
+        suggestionId = aSuggestionId;
+        event = anEvent;
+        automatedBySystem = anAutomatedBySystem;
     }
 
-    public UserSuggestionResponse(JsonObject jsonObject) {
-        this.suggestionId = UUID.fromString(jsonObject.get("suggestionId").asString());
-        this.event = new Event(jsonObject.get("event").asObject());
-        this.automatedBySystem = jsonObject.get("automatedBySystem").asBoolean();
+    public UserSuggestionResponse(final JsonObject jsonObject) {
+        suggestionId = UUID.fromString(
+                jsonObject.get("suggestionId").asString());
+        event = new Event(jsonObject.get("event").asObject());
+        automatedBySystem = jsonObject.get("automatedBySystem").asBoolean();
     }
 
-    public UUID getSuggestionId() {
+    public final UUID getSuggestionId() {
         return suggestionId;
     }
 
-    public Event getEvent() {
+    public final Event getEvent() {
         return event;
     }
 
-    public boolean isAutomatedBySystem() {
+    public final boolean isAutomatedBySystem() {
         return automatedBySystem;
     }
 
+    /**
+     * Convert the UserSuggestionResponse into Json.
+     *
+     * @return the Json
+     */
     public JsonObject toJson() {
         JsonObject json = new JsonObject();
         json.add("type", UserSuggestionResponse.class.getName());
@@ -77,6 +89,10 @@ public class UserSuggestionResponse {
         return json;
     }
 
+    /**
+     * @return The Json as String
+     */
+    @Override
     public String toString() {
         return toJson().toString();
     }

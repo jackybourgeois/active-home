@@ -32,7 +32,6 @@ import java.util.UUID;
 
 /**
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class Event {
 

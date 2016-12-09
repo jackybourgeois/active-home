@@ -31,7 +31,6 @@ import java.util.HashMap;
  * Wrap of a metric as 'Device' (for terminology).
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
 public class Device extends Metric {
 

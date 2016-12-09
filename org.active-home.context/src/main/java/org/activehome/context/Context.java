@@ -33,7 +33,13 @@ import org.activehome.com.ShowIfErrorCallback;
 import org.activehome.com.error.Error;
 import org.activehome.com.error.ErrorType;
 import org.activehome.context.com.ContextRequest;
-import org.activehome.context.data.*;
+import org.activehome.context.data.DataPoint;
+import org.activehome.context.data.DiscreteDataPoint;
+import org.activehome.context.data.MetricRecord;
+import org.activehome.context.data.Record;
+import org.activehome.context.data.SampledRecord;
+import org.activehome.context.data.Schedule;
+import org.activehome.context.data.UserInfo;
 import org.activehome.context.process.TriggerManager;
 import org.activehome.service.RequestHandler;
 import org.activehome.service.Service;
@@ -51,16 +57,16 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.stream.Collectors;
 
 /**
- * Manage the context of Active Home.
+ * A context stores, triggers, notifies and shares data.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "A context stores, "
+        + "triggers, notifies and shares data.")
 public abstract class Context extends Service {
 
     /**
-     * Start date of the test
+     * Start date of the test.
      */
     @Param(defaultValue = "false")
     protected boolean showNotif;
@@ -88,12 +94,12 @@ public abstract class Context extends Service {
     private TreeMap<Long, DataPoint> waitingDP;
 
     /**
-     *
+     * Port to publish notifications to other Active Home components.
      */
     @Output
     private org.kevoree.api.Port pushDataToSystem;
     /**
-     *
+     * Port to publish notifications outside Active Home (through APIs).
      */
     @Output
     private org.kevoree.api.Port pushDataOutside;
@@ -113,7 +119,7 @@ public abstract class Context extends Service {
     protected abstract void save(List<DataPoint> dpArray);
 
     /**
-     * Provide the last DataPoint received of the given metric.
+     * Provide the last DataPoint received of the given metrics.
      *
      * @param metricArray the metrics we are looking for
      * @param callback    The callback to reply
@@ -142,19 +148,19 @@ public abstract class Context extends Service {
      * @param shift          Length of the time shift between each request
      * @param callback       The callback to reply
      */
-    public abstract void extractSampleData(final ContextRequest contextRequest,
-                                           final int iteration,
-                                           final long shift,
-                                           final RequestCallback callback);
+    public abstract void extractSampleData(ContextRequest contextRequest,
+                                           int iteration,
+                                           long shift,
+                                           RequestCallback callback);
 
-    public abstract void extractSchedule(final long start,
-                                         final long duration,
-                                         final long granularity,
-                                         final String[] metricArray,
-                                         final RequestCallback callback);
+    public abstract void extractSchedule(long start,
+                                         long duration,
+                                         long granularity,
+                                         String[] metricArray,
+                                         RequestCallback callback);
 
-    public abstract void getAllAvailableMetrics(final UserInfo userInfo,
-                                                final RequestCallback callback);
+    public abstract void getAllAvailableMetrics(UserInfo userInfo,
+                                                RequestCallback callback);
 
     /**
      * @return The map of most recent DataPoints
@@ -491,6 +497,7 @@ public abstract class Context extends Service {
             if (subscriptionMap.containsKey("*")) {
                 destList = subscriptionMap.get("*");
                 for (String dest : destList) {
+                    logInfo("### sending notification to * subscribers " + dest);
                     sendNotification(new Notif(getFullId(),
                             dest, getCurrentTime(), content));
                 }

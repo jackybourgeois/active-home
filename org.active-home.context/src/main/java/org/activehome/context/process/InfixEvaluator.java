@@ -46,6 +46,31 @@ import java.util.Stack;
 public class InfixEvaluator {
 
     /**
+     * Precedence level of ||.
+     */
+    private static final int LEVEL_OR = 1;
+    /**
+     * Precedence level of &&.
+     */
+    private static final int LEVEL_AND = 2;
+    /**
+     * Precedence level of == and !=.
+     */
+    private static final int LEVEL_EQUALITY = 3;
+    /**
+     * Precedence level of >, <, <=, >=.
+     */
+    private static final int LEVEL_COMPARISON = 4;
+    /**
+     * Precedence level of + and -.
+     */
+    private static final int LEVEL_ADD_SUB = 5;
+    /**
+     * Precedence level of * and /.
+     */
+    private static final int LEVEL_MUL_DIV = 6;
+
+    /**
      * The infix expression to evaluate.
      */
     private String expression;
@@ -237,6 +262,9 @@ public class InfixEvaluator {
         return null;
     }
 
+    /**
+     * Generate a diagnostic of the process for an empty stack exception.
+     */
     private void diagnostic() {
         StringBuilder infixStr = new StringBuilder();
         for (String elem : infixArray) {
@@ -254,18 +282,18 @@ public class InfixEvaluator {
     private int getPrecedence(final String operator) {
         int ret = 0;
         if (operator.matches("||")) {
-            ret = 1;
+            ret = LEVEL_OR;
         } else if (operator.matches("&&")) {
-            ret = 2;
+            ret = LEVEL_AND;
         } else if (operator.matches("==") || operator.matches("!=")) {
-            ret = 3;
+            ret = LEVEL_EQUALITY;
         } else if (operator.matches("[<>]") || operator.matches(">=")
                 || operator.matches("<=")) {
-            ret = 4;
+            ret = LEVEL_COMPARISON;
         } else if (operator.matches("[-+]")) {
-            ret = 5;
+            ret = LEVEL_ADD_SUB;
         } else if (operator.matches("[*/]")) {
-            ret = 6;
+            ret = LEVEL_MUL_DIV;
         }
         return ret;
     }

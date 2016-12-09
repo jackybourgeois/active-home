@@ -1,30 +1,5 @@
 package org.activehome.api;
 
-/*
- * #%L
- * Active Home :: API
- * $Id:$
- * $HeadURL:$
- * %%
- * Copyright (C) 2016 org.active-home
- * %%
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as
- * published by the Free Software Foundation, either version 3 of the 
- * License, or (at your option) any later version.
- * 
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- * 
- * You should have received a copy of the GNU General Public 
- * License along with this program.  If not, see
- * <http://www.gnu.org/licenses/gpl-3.0.html>.
- * #L%
- */
-
-
 import org.activehome.com.Message;
 import org.activehome.com.Notif;
 import org.activehome.com.Request;
@@ -33,16 +8,18 @@ import org.activehome.service.Service;
 import org.activehome.service.RequestHandler;
 import org.kevoree.ContainerNode;
 import org.kevoree.ContainerRoot;
-import org.kevoree.annotation.*;
-import org.kevoree.api.ModelService;
+import org.kevoree.annotation.ComponentType;
+import org.kevoree.annotation.Input;
+import org.kevoree.annotation.Output;
+import org.kevoree.annotation.Param;
 
 /**
  * An API makes an interaction between the system and the external world.
  *
  * @author Jacky Bourgeois
- * @version %I%, %G%
  */
-@ComponentType
+@ComponentType(version = 1, description = "An API makes an interaction "
+        + "between the system and the external world.")
 public abstract class API extends Service implements RequestHandler {
 
     /**
