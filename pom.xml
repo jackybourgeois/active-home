@@ -40,7 +40,7 @@
                 <role>admin</role>
                 <role>developer</role>
             </roles>
-            <timezone>Europe/London</timezone>
+            <timezone>Europe/Amsterdam</timezone>
         </developer>
     </developers>
 
@@ -52,9 +52,7 @@
         <module>org.active-home.user</module>
         <module>org.active-home.service</module>
         <module>org.active-home.io</module>
-        <module>org.active-home.translator</module>
         <module>org.active-home.time</module>
-        <module>org.active-home.core</module>
         <module>org.active-home.test</module>
         <module>org.active-home.predictor</module>
         <module>org.active-home.evaluator</module>
@@ -68,6 +66,8 @@
         <jdk.target>1.8</jdk.target>
         <kevoree.log.version>1</kevoree.log.version>
         <kevoree.kcl.version>19</kevoree.kcl.version>
+        <kevoree.registry.login>${kevoree.login}</kevoree.registry.login>
+        <kevoree.registry.password>${kevoree.password}</kevoree.registry.password>
         <license.licenseName>gpl_v3</license.licenseName>
     </properties>
 
@@ -112,6 +112,30 @@
     </pluginRepositories>
 
     <build>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.kevoree.tools</groupId>
+                    <artifactId>org.kevoree.tools.mavenplugin</artifactId>
+                    <version>${kevoree.version}</version>
+                    <extensions>true</extensions>
+                    <executions>
+                        <execution>
+                            <goals>
+                                <goal>generate</goal>
+                                <goal>deploy</goal>
+                            </goals>
+                        </execution>
+                    </executions>
+                    <configuration>
+                        <namespace>activehome</namespace>
+                        <login>${kevoree.registry.login}</login>
+                        <password>${kevoree.registry.password}</password>
+                    </configuration>
+                </plugin>
+            </plugins>
+        </pluginManagement>
+
         <plugins>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
@@ -167,7 +191,7 @@
             <plugin>
                 <groupId>org.codehaus.mojo</groupId>
                 <artifactId>license-maven-plugin</artifactId>
-                <version>1.4</version>
+                <version>1.10</version>
                 <configuration>
                     <verbose>false</verbose>
                     <addSvnKeyWords>true</addSvnKeyWords>
