@@ -28,7 +28,12 @@ package org.activehome.io;
 import org.activehome.com.Notif;
 import org.activehome.com.Request;
 import org.activehome.time.TimeControlled;
-import org.kevoree.annotation.*;
+import org.kevoree.annotation.ComponentType;
+import org.kevoree.annotation.Input;
+import org.kevoree.annotation.KevoreeInject;
+import org.kevoree.annotation.Output;
+import org.kevoree.annotation.Param;
+import org.kevoree.annotation.Start;
 import org.kevoree.api.ModelService;
 import org.kevoree.api.handler.ModelListener;
 import org.kevoree.api.handler.UpdateContext;
@@ -40,7 +45,8 @@ import org.kevoree.log.Log;
  *
  * @author Jacky Bourgeois
  */
-@ComponentType(version = 1, description = "An IO, for Input/Output, is a provider of raw data or control.")
+@ComponentType(version = 1, description = "An IO, for Input/Output, "
+        + "is a provider of raw data or control.")
 public abstract class IO extends TimeControlled implements ModelListener {
 
     /**
@@ -50,6 +56,9 @@ public abstract class IO extends TimeControlled implements ModelListener {
             + "ctrl>User.pushCmd")
     private String bindingIO;
 
+    /**
+     * Access to Kevoree's model.
+     */
     @KevoreeInject
     private ModelService modelService;
     /**
@@ -68,6 +77,9 @@ public abstract class IO extends TimeControlled implements ModelListener {
     @Output
     private org.kevoree.api.Port toSchedule;
 
+    /**
+     * If override, this method should be called first.
+     */
     @Start
     public void start() {
         super.start();
@@ -161,11 +173,11 @@ public abstract class IO extends TimeControlled implements ModelListener {
         }
     }
 
-    protected final void logInfo(String message) {
+    protected final void logInfo(final String message) {
         Log.info("[" + getFullId() + " - " + strLocalTime() + "] " + message);
     }
 
-    protected final void logError(String message) {
+    protected final void logError(final String message) {
         Log.error("[" + getFullId() + " - " + strLocalTime() + "] " + message);
     }
 
@@ -181,11 +193,11 @@ public abstract class IO extends TimeControlled implements ModelListener {
 
 
     @Override
-    public void preRollback(UpdateContext updateContext) {
+    public void preRollback(final UpdateContext updateContext) {
     }
 
     @Override
-    public void postRollback(UpdateContext updateContext) {
+    public void postRollback(final UpdateContext updateContext) {
     }
 
     @Override
