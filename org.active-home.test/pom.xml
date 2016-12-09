@@ -28,16 +28,6 @@
     <build>
         <plugins>
             <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>3.1</version>
-                <configuration>
-                    <source>${jdk.target}</source>
-                    <target>${jdk.target}</target>
-                    <encoding>${project.build.sourceEncoding}</encoding>
-                </configuration>
-            </plugin>
-            <plugin>
                 <groupId>org.kevoree.tools</groupId>
                 <artifactId>org.kevoree.tools.mavenplugin</artifactId>
                 <version>${kevoree.version}</version>
@@ -50,6 +40,21 @@
                         </goals>
                     </execution>
                 </executions>
+                <configuration>
+                    <namespace>activehome</namespace>
+                    <login>${kevoree.registry.login}</login>
+                    <password>${kevoree.registry.password}</password>
+                </configuration>
+            </plugin>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.1</version>
+                <configuration>
+                    <source>${jdk.target}</source>
+                    <target>${jdk.target}</target>
+                    <encoding>${project.build.sourceEncoding}</encoding>
+                </configuration>
             </plugin>
         </plugins>
     </build>

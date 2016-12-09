@@ -112,30 +112,6 @@
     </pluginRepositories>
 
     <build>
-        <pluginManagement>
-            <plugins>
-                <plugin>
-                    <groupId>org.kevoree.tools</groupId>
-                    <artifactId>org.kevoree.tools.mavenplugin</artifactId>
-                    <version>${kevoree.version}</version>
-                    <extensions>true</extensions>
-                    <executions>
-                        <execution>
-                            <goals>
-                                <goal>generate</goal>
-                                <goal>deploy</goal>
-                            </goals>
-                        </execution>
-                    </executions>
-                    <configuration>
-                        <namespace>activehome</namespace>
-                        <login>${kevoree.registry.login}</login>
-                        <password>${kevoree.registry.password}</password>
-                    </configuration>
-                </plugin>
-            </plugins>
-        </pluginManagement>
-
         <plugins>
             <plugin>
                 <groupId>org.sonatype.plugins</groupId>
