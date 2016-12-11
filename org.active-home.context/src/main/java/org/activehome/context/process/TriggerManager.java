@@ -169,7 +169,7 @@ public class TriggerManager {
                 .forEach(triggerRegex -> {
                     for (Trigger trigger : useTriggerMap.get(triggerRegex)) {
                         String resultMetric = trigger.getResultMetric()
-                                .replaceAll("\\$\\{triggerMetric\\}", dp.getMetricId());
+                                .replaceAll("\\$\\{triggerMetric}", dp.getMetricId());
                         try {
                             Object result = eval(trigger.getInfixExpression(), dp);
                             if (result instanceof Error) {
@@ -208,7 +208,7 @@ public class TriggerManager {
                 .forEach(triggerRegex -> {
                     for (Trigger trigger : useTriggerMap.get(triggerRegex)) {
                         String resultMetric = trigger.getResultMetric()
-                                .replaceAll("\\$\\{triggerMetric\\}", newMR.getMetricId());
+                                .replaceAll("\\$\\{triggerMetric}", newMR.getMetricId());
                         changes.add(eval(trigger.getInfixExpression(), resultMetric, newMR, environmentSchedule));
                     }
                 });
@@ -238,7 +238,7 @@ public class TriggerManager {
         while (snapShot.next()) {
             DataPoint triggerDP = snapShot.getCurrentDP(newMR.getMetricId(), newMR.getMainVersion());
             if (triggerDP != null) {
-                String infix = null;
+                String infix;
                 try {
                     infix = replacePathInCondition(expression, triggerDP, snapShot);
                     InfixEvaluator infixEvaluator = new InfixEvaluator();
@@ -271,11 +271,11 @@ public class TriggerManager {
                                           final DataPoint triggerDP)
             throws ContextTriggerException {
         // replace triggered dp metric and val
-        String updatedExpression = expression.replaceAll("\\$\\{triggerMetric\\}", triggerDP.getMetricId())
-                .replaceAll("\\$\\{triggerValue\\}", triggerDP.getValue());
+        String updatedExpression = expression.replaceAll("\\$\\{triggerMetric}", triggerDP.getMetricId())
+                .replaceAll("\\$\\{triggerValue}", triggerDP.getValue());
 
         // replace current metric values
-        Matcher m = Pattern.compile("\\$\\{([^}]+)\\}").matcher(updatedExpression);
+        Matcher m = Pattern.compile("\\$\\{([^}]+)}").matcher(updatedExpression);
         StringBuffer stringBuffer = new StringBuffer();
         while (m.find()) {
             String[] metricAndAlternative = m.group().replace("${", "").replace("}", "").split(",");
@@ -293,7 +293,7 @@ public class TriggerManager {
         updatedExpression = stringBuffer.toString();
 
         // replace current metric ts
-        m = Pattern.compile("\\$ts\\{([^}]+)\\}").matcher(updatedExpression);
+        m = Pattern.compile("\\$ts\\{([^}]+)}").matcher(updatedExpression);
         stringBuffer = new StringBuffer();
         while (m.find()) {
             String metricAndAlternative = m.group().replace("$ts{", "").replace("}", "");
@@ -309,7 +309,7 @@ public class TriggerManager {
         updatedExpression = stringBuffer.toString();
 
         // replace previous metric values
-        m = Pattern.compile("\\$-1\\{([^}]+)\\}").matcher(updatedExpression);
+        m = Pattern.compile("\\$-1\\{([^}]+)}").matcher(updatedExpression);
         stringBuffer = new StringBuffer();
         while (m.find()) {
             String[] metricAndAlternative = m.group().replace("$-1{", "").replace("}", "").split(",");
@@ -327,7 +327,7 @@ public class TriggerManager {
         updatedExpression = stringBuffer.toString();
 
         // replace current metric ts
-        m = Pattern.compile("\\$ts-1\\{([^}]+)\\}").matcher(updatedExpression);
+        m = Pattern.compile("\\$ts-1\\{([^}]+)}").matcher(updatedExpression);
         stringBuffer = new StringBuffer();
         while (m.find()) {
             String metricAndAlternative = m.group().replace("$ts-1{", "").replace("}", "");
@@ -364,13 +364,13 @@ public class TriggerManager {
                                           final SnapShot snapshot)
             throws ContextTriggerException {
         // replace triggered dp metric and val
-        String updatedExpression = expression.replaceAll("\\$\\{triggerMetric\\}",
-                triggerDP.getMetricId()).replaceAll("\\$\\{triggerValue\\}", triggerDP.getValue());
+        String updatedExpression = expression.replaceAll("\\$\\{triggerMetric}",
+                triggerDP.getMetricId()).replaceAll("\\$\\{triggerValue}", triggerDP.getValue());
 
         String[] versions = new String[]{triggerDP.getVersion(), "0"};
 
         // replace current metric values
-        Matcher m = Pattern.compile("\\$\\{([^}]+)\\}").matcher(updatedExpression);
+        Matcher m = Pattern.compile("\\$\\{([^}]+)}").matcher(updatedExpression);
         StringBuffer stringBuffer = new StringBuffer();
         while (m.find()) {
             String[] metricAndAlternative = m.group().replace("${", "").replace("}", "").split(",");
@@ -393,7 +393,7 @@ public class TriggerManager {
         updatedExpression = stringBuffer.toString();
 
         // replace current metric ts
-        m = Pattern.compile("\\$ts\\{([^}]+)\\}").matcher(updatedExpression);
+        m = Pattern.compile("\\$ts\\{([^}]+)}").matcher(updatedExpression);
         stringBuffer = new StringBuffer();
         while (m.find()) {
             String metricAndAlternative = m.group().replace("$ts{", "").replace("}", "");
@@ -414,7 +414,7 @@ public class TriggerManager {
         updatedExpression = stringBuffer.toString();
 
         // replace previous metric values
-        m = Pattern.compile("\\$-1\\{([^}]+)\\}").matcher(updatedExpression);
+        m = Pattern.compile("\\$-1\\{([^}]+)}").matcher(updatedExpression);
         stringBuffer = new StringBuffer();
         while (m.find()) {
             String[] metricAndAlternative = m.group().replace("$-1{", "").replace("}", "").split(",");
@@ -437,7 +437,7 @@ public class TriggerManager {
         updatedExpression = stringBuffer.toString();
 
         // replace current metric ts
-        m = Pattern.compile("\\$ts-1\\{([^}]+)\\}").matcher(updatedExpression);
+        m = Pattern.compile("\\$ts-1\\{([^}]+)}").matcher(updatedExpression);
         stringBuffer = new StringBuffer();
         while (m.find()) {
             String metricAndAlternative = m.group().replace("$ts-1{", "").replace("}", "");
@@ -485,10 +485,7 @@ public class TriggerManager {
 
         double result = 0;
 
-        Iterator<Map.Entry<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>>> iterator
-                = context.getCurrentDPMap().entrySet().iterator();
-        while (iterator.hasNext()) {
-            Map.Entry<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> entry = iterator.next();
+        for (Map.Entry<String, ConcurrentHashMap<String, ConcurrentHashMap<Long, DataPoint>>> entry : context.getCurrentDPMap().entrySet()) {
             if (entry.getKey().matches(pathRegex)) {
                 if (entry.getValue().get("0") != null) {
                     result += toNumber(entry.getValue().get("0").get(0L).getValue());
@@ -560,25 +557,25 @@ public class TriggerManager {
 
     public final Set<String> extractVariable(final String expression) {
         Set<String> metrics = new HashSet<>();
-        Matcher m = Pattern.compile("\\$\\{([^}]+)\\}").matcher(expression);
+        Matcher m = Pattern.compile("\\$\\{([^}]+)}").matcher(expression);
         while (m.find()) {
             metrics.add(m.group().replace("${", "").replace("}", "").split(",")[0]);
         }
 
         // replace current metric ts
-        m = Pattern.compile("\\$ts\\{([^}]+)\\}").matcher(expression);
+        m = Pattern.compile("\\$ts\\{([^}]+)}").matcher(expression);
         while (m.find()) {
             metrics.add(m.group().replace("$ts{", "").replace("}", ""));
         }
 
         // replace previous metric values
-        m = Pattern.compile("\\$-1\\{([^}]+)\\}").matcher(expression);
+        m = Pattern.compile("\\$-1\\{([^}]+)}").matcher(expression);
         while (m.find()) {
             metrics.add(m.group().replace("$-1{", "").replace("}", "").split(",")[0]);
         }
 
         // replace previous metric ts
-        m = Pattern.compile("\\$ts-1\\{([^}]+)\\}").matcher(expression);
+        m = Pattern.compile("\\$ts-1\\{([^}]+)}").matcher(expression);
         while (m.find()) {
             metrics.add(m.group().replace("$ts-1{", "").replace("}", ""));
         }

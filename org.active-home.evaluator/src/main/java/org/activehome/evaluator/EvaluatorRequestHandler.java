@@ -56,7 +56,7 @@ public class EvaluatorRequestHandler implements RequestHandler {
     public void evaluate(final double startTS,
                          final double endTS,
                          final RequestCallback callback) {
-        service.evaluate((long)startTS, (long)endTS, callback);
+        service.evaluate((long) startTS, (long) endTS, callback);
     }
 
 }

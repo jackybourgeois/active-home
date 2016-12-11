@@ -26,7 +26,6 @@ package org.activehome.tools;
 
 
 /**
- *
  * @author Jacky Bourgeois
  */
 public class ExponentialMovingAverage {
@@ -34,11 +33,11 @@ public class ExponentialMovingAverage {
     private double alpha;
     private Double oldValue;
 
-    public ExponentialMovingAverage(double alpha) {
-        this.alpha = alpha;
+    public ExponentialMovingAverage(final double alphaValue) {
+        alpha = alphaValue;
     }
 
-    public double average(double value) {
+    public double average(final double value) {
         if (oldValue == null) {
             oldValue = value;
             return value;

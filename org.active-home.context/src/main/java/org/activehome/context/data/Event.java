@@ -56,7 +56,7 @@ public class Event {
         scheduleName = null;
     }
 
-    public Event(JsonObject json) {
+    public Event(final JsonObject json) {
         id = UUID.fromString(json.get("id").asString());
         startTS = json.getLong("startTS", 0);
         duration = json.getLong("duration", 0);
@@ -70,7 +70,7 @@ public class Event {
 
         propertyMap = new HashMap<>();
         for (String name : json.get("prop").asObject().names()) {
-            propertyMap.put(name, json.get("prop").asObject().getString(name,""));
+            propertyMap.put(name, json.get("prop").asObject().getString(name, ""));
         }
 
         isOnlyPart = json.getBoolean("isOnlyPart", isOnlyPart);
@@ -92,11 +92,11 @@ public class Event {
         return metricRecordMap;
     }
 
-    public String getProp(String key) {
+    public String getProp(final String key) {
         return propertyMap.get(key);
     }
 
-    public void setProp(String key, String val) {
+    public void setProp(final String key, final String val) {
         propertyMap.put(key, val);
     }
 
@@ -108,8 +108,8 @@ public class Event {
         return scheduleName;
     }
 
-    public void setScheduleName(String scheduleName) {
-        this.scheduleName = scheduleName;
+    public void setScheduleName(final String aScheduleName) {
+        scheduleName = aScheduleName;
     }
 
     public JsonObject toJson() {
@@ -143,14 +143,4 @@ public class Event {
         return toJson().toString();
     }
 
-    public void transform(final Transformation transformation) {
-        if (transformation.getType().equals(Transformation.TransformationType.SHIFT)) {
-            startTS = startTS + (long)transformation.getParam();
-            HashMap<String, MetricRecord> mrMap = new HashMap<>();
-            for (String key : metricRecordMap.keySet()) {
-                mrMap.put(key, new MetricRecord(startTS, metricRecordMap.get(key)));
-            }
-            metricRecordMap = mrMap;
-        }
-    }
 }

@@ -48,7 +48,7 @@ public final class FileHelper {
     /**
      * Size of chunks for image stream.
      */
-    private static final int BUFFER_SIZE =  16384;
+    private static final int BUFFER_SIZE = 16384;
 
     /**
      * Utility class.
@@ -58,14 +58,16 @@ public final class FileHelper {
 
     /**
      * @param fileName The name of the file to load
-     * @param loader The specific class loader
+     * @param loader   The specific class loader
      * @return the file content as string, empty string otherwise
      */
     public static String fileToString(final String fileName,
                                       final ClassLoader loader) {
         InputStream is = loader.getResourceAsStream(fileName);
-        if (is!=null) {
-            if (fileName.endsWith(".jpg") || fileName.endsWith(".png") || fileName.endsWith(".ico")) {
+        if (is != null) {
+            if (fileName.endsWith(".jpg")
+                    || fileName.endsWith(".png")
+                    || fileName.endsWith(".ico")) {
                 return imgStreamToString(is);
             }
             java.util.Scanner s = new java.util.Scanner(is).useDelimiter("\\A");
@@ -132,7 +134,7 @@ public final class FileHelper {
                 } else {
                     String[] strFiles = folder.list();
 
-                    for (String strFilename: strFiles) {
+                    for (String strFilename : strFiles) {
                         File fileToDelete = new File(folder, strFilename);
 
                         cleanFolder(fileToDelete);
@@ -150,7 +152,7 @@ public final class FileHelper {
      * Write in file - append.
      *
      * @param message The message to log
-     * @param file The destination file
+     * @param file    The destination file
      */
     public static void logln(final String message, final String file) {
         log(message + "\n", file);
@@ -160,7 +162,7 @@ public final class FileHelper {
      * Write in file - append.
      *
      * @param message The message to log
-     * @param file The destination file
+     * @param file    The destination file
      */
     public static void log(final String message, final String file) {
         FileWriter out = null;
@@ -184,7 +186,7 @@ public final class FileHelper {
      * Write in file - overwrite.
      *
      * @param content The content to save
-     * @param file The destination file
+     * @param file    The destination file
      */
     public static void save(final String content, final String file) {
         FileWriter out = null;

@@ -337,19 +337,18 @@ public abstract class Context extends Service {
         return toSave;
     }
 
-    private void saveNewMR(MetricRecord mrToSave) {
+    private void saveNewMR(final MetricRecord mrToSave) {
         for (String version : mrToSave.getAllVersionRecords().keySet()) {
             LinkedList<DataPoint> dpToSave = new LinkedList<>();
             LinkedList<Record> versionRecords = mrToSave.getRecords(version);
-            for (int i = 0; i < versionRecords.size(); i++) {
-                if (versionRecords.get(i) instanceof SampledRecord) {
-                    SampledRecord record = (SampledRecord) versionRecords.get(i);
+            for (Record versionRecord : versionRecords) {
+                if (versionRecord instanceof SampledRecord) {
+                    SampledRecord record = (SampledRecord) versionRecord;
                     dpToSave.add(new DiscreteDataPoint(mrToSave.getMetricId(), mrToSave.getStartTime(),
                             record.getValue(), version, record.getTS(), record.getConfidence(), record.getDuration()));
                 } else {
-                    Record record = versionRecords.get(i);
-                    dpToSave.add(new DataPoint(mrToSave.getMetricId(), mrToSave.getStartTime() + record.getTS(),
-                            record.getValue(), version, 0, record.getConfidence()));
+                    dpToSave.add(new DataPoint(mrToSave.getMetricId(), mrToSave.getStartTime() + versionRecord.getTS(),
+                            versionRecord.getValue(), version, 0, versionRecord.getConfidence()));
                 }
             }
             save(dpToSave);
@@ -540,9 +539,7 @@ public abstract class Context extends Service {
             if (isAdmin) {
                 metric = metric.replace(userInfo.getId() + ".*", "*");
             }
-            if (subscriptionMap.get(metric) == null) {
-                subscriptionMap.put(metric, new LinkedList<>());
-            }
+            subscriptionMap.computeIfAbsent(metric, k -> new LinkedList<>());
             boolean exists = false;
             for (String dest : subscriptionMap.get(metric)) {
                 if (dest.compareTo(subscriptionDest) == 0) {

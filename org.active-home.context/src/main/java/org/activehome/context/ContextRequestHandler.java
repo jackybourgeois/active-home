@@ -88,7 +88,7 @@ public class ContextRequestHandler implements RequestHandler {
                 getClass().getClassLoader());
         if (!content.equals("")) {
             if (fileName.endsWith(".html")) {
-                content = content.replaceAll("\\$\\{id\\}", service.getId());
+                content = content.replaceAll("\\$\\{id}", service.getId());
             }
             JsonObject json = new JsonObject();
             json.add("content", content);

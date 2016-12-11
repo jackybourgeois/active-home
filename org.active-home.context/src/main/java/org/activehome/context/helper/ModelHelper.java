@@ -26,7 +26,6 @@ package org.activehome.context.helper;
 
 
 import org.activehome.context.data.Device;
-import org.kevoree.*;
 import org.kevoree.api.ModelService;
 import org.kevoree.api.handler.UUIDModel;
 import org.kevoree.factory.DefaultKevoreeFactory;
@@ -211,9 +210,8 @@ public final class ModelHelper {
         HashMap<String, Device> negotiableDeviceMap = new HashMap<>();
         deviceMap.keySet().stream()
                 .filter(deviceId -> deviceMap.get(deviceId).isNegotiable())
-                .forEach(deviceId -> {
-                    negotiableDeviceMap.put(deviceId, deviceMap.get(deviceId));
-                });
+                .forEach(deviceId -> negotiableDeviceMap.put(
+                        deviceId, deviceMap.get(deviceId)));
         return negotiableDeviceMap;
     }
 

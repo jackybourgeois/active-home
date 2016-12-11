@@ -29,7 +29,6 @@ import com.eclipsesource.json.JsonArray;
 import com.eclipsesource.json.JsonObject;
 import com.eclipsesource.json.JsonValue;
 
-import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -80,33 +79,33 @@ public class MetricRecord {
         records = new HashMap<>();
     }
 
-    public MetricRecord(final String theMetricId,
-                        final long theStartTime,
-                        final long theTimeFrame) {
-        metricId = theMetricId;
-        startTime = theStartTime;
-        timeFrame = theTimeFrame;
+    public MetricRecord(final String aMetricId,
+                        final long aStartTime,
+                        final long aTimeFrame) {
+        metricId = aMetricId;
+        startTime = aStartTime;
+        timeFrame = aTimeFrame;
         recording = true;
         records = new HashMap<>();
     }
 
-    public MetricRecord(final String metricId,
-                        final long timeFrame,
-                        final String version,
-                        final long startTime,
+    public MetricRecord(final String aMetricId,
+                        final long aTimeFrame,
+                        final String aVersion,
+                        final long aStartTime,
                         final String initialValue,
                         final double confidence) {
-        this(metricId, timeFrame);
-        addRecord(startTime, initialValue, version, confidence);
+        this(aMetricId, aTimeFrame);
+        addRecord(aStartTime, initialValue, aVersion, confidence);
     }
 
-    public MetricRecord(final String metricId,
-                        final long timeFrame,
-                        final long startTime,
+    public MetricRecord(final String aMetricId,
+                        final long aTimeFrame,
+                        final long aStartTime,
                         final String initialValue,
                         final double confidence) {
-        this(metricId, timeFrame);
-        addRecord(startTime, initialValue, DEFAULT_MAIN_VERSION, confidence);
+        this(aMetricId, aTimeFrame);
+        addRecord(aStartTime, initialValue, DEFAULT_MAIN_VERSION, confidence);
     }
 
     /**
@@ -402,7 +401,7 @@ public class MetricRecord {
         int i = 0;
         int j = 0;
         double prevInitial = 0;
-        double prevUpdated = 0;
+        double prevUpdated;
 
         if (!records.containsKey(destVersion)) {
             records.put(destVersion, new LinkedList<>());

@@ -98,8 +98,8 @@ public class InfixEvaluator {
      */
     private LinkedList<String> convert2Postfix(final String infixExpr) {
         String[] temp = infixExpr.split(
-                "(?<=([\\(\\)<>+-/\\*]|==|!=|\\|\\||&&|\\?|:)"
-                        + "|(?=([\\(\\)<>+-/\\*]|==|!=|\\|\\||&&|\\?|:)))");
+                "(?<=([()<>+-/*]|==|!=|\\|\\||&&|\\?|:)"
+                        + "|(?=([()<>+-/*]|==|!=|\\|\\||&&|\\?|:)))");
         LinkedList<String> infixList = new LinkedList<>();
         Collections.addAll(infixList, temp);
 
@@ -137,7 +137,7 @@ public class InfixEvaluator {
         LinkedList<String> output = new LinkedList<>();
         Stack<String> stack = new Stack<>();
         for (String token : infixArray) {
-            if (token.matches("[<>+-/\\*]|==|!=|\\|\\||&&")) {
+            if (token.matches("[<>+-/*]|==|!=|\\|\\||&&")) {
                 while (!stack.isEmpty() && !stack.peek().matches("\\(")) {
                     if (operatorGreaterOrEqual(stack.peek(), token)) {
                         output.addLast(stack.pop());
@@ -199,7 +199,7 @@ public class InfixEvaluator {
                 stack.push(Boolean.FALSE);
             } else if (token.matches("true")) {
                 stack.push(Boolean.TRUE);
-            } else if (token.matches("[<>+-/\\*]|==|!=|\\|\\||&&|:\\?")) {
+            } else if (token.matches("[<>+-/*]|==|!=|\\|\\||&&|:\\?")) {
                 try {
                     Object op1 = stack.pop();
                     Object op2 = stack.pop();

@@ -40,12 +40,10 @@ public class Episode {
 
     private UUID id;
     private LinkedList<Event> events;
-    private HashMap<String, AlternativeEpisode> alternatives;
 
     public Episode(final LinkedList<Event> events) {
         id = UUID.randomUUID();
         this.events = events;
-        alternatives = new HashMap<>();
     }
 
     public Episode() {
@@ -57,12 +55,6 @@ public class Episode {
         events = new LinkedList<>();
         for (JsonValue jsonEvent : json.get("events").asArray()) {
             events.add(new Event(jsonEvent.asObject()));
-        }
-
-        alternatives = new HashMap<>();
-        JsonObject jsonImpacts = json.get("alternatives").asObject();
-        for (String version : jsonImpacts.names()) {
-            alternatives.put(version, new AlternativeEpisode(jsonImpacts.get(version).asObject()));
         }
     }
 
@@ -78,12 +70,6 @@ public class Episode {
         }
         json.add("events", eventArray);
 
-        JsonObject jsonAlternatives = new JsonObject();
-        for (String version : alternatives.keySet()) {
-            jsonAlternatives.add(version, alternatives.get(version).toJson());
-        }
-        json.add("alternatives", jsonAlternatives);
-
         return json;
     }
 
@@ -93,15 +79,6 @@ public class Episode {
 
     public LinkedList<Event> getEvents() {
         return events;
-    }
-
-    public void addAlternative(final String version,
-                               final AlternativeEpisode alternative) {
-        alternatives.put(version, alternative);
-    }
-
-    public HashMap<String, AlternativeEpisode> getAlternatives() {
-        return alternatives;
     }
 
     public String toString() {

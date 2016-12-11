@@ -122,7 +122,7 @@ public abstract class ComponentTester extends Service
         logInfo("Test started.");
         ScheduledRequest sr = new ScheduledRequest(getFullId(),
                 getNode() + ".timekeeper", getCurrentTime(),
-                "stopTime",  startTS + getTestDuration());
+                "stopTime", startTS + getTestDuration());
         sendToTaskScheduler(sr, new ShowIfErrorCallback());
     }
 
@@ -170,7 +170,7 @@ public abstract class ComponentTester extends Service
 
     private void nextTest() {
         JsonObject params = prepareNextTest();
-        if (params!=null) {
+        if (params != null) {
             initiateTest(params);
         } else {
             logInfo("Tests done.");
@@ -179,13 +179,13 @@ public abstract class ComponentTester extends Service
 
     protected abstract String logHeaders();
 
-    protected void logResults(String results) {
+    protected void logResults(final String results) {
         FileHelper.logln(results, logFile);
     }
 
     protected abstract JsonObject prepareNextTest();
 
-    private void initiateTest(JsonObject params) {
+    private void initiateTest(final JsonObject params) {
         logInfo("Initializing test: " + params);
         Request initReq = new Request(getFullId(), getNode() + ".timekeeper",
                 getCurrentTime(), "setProperties", new Object[]{params});
@@ -224,9 +224,10 @@ public abstract class ComponentTester extends Service
     }
 
     /**
-     * @param scheduledRequest  The ScheduledRequest to send
+     * @param scheduledRequest The ScheduledRequest to send
      */
-    public final void sendToTaskScheduler(final Request scheduledRequest, RequestCallback callback) {
+    public final void sendToTaskScheduler(final Request scheduledRequest,
+                                          final RequestCallback callback) {
         if (toSchedule != null && toSchedule.getConnectedBindingsSize() > 0) {
             if (callback != null) {
                 getWaitingRequest().put(scheduledRequest.getId(), callback);
@@ -239,7 +240,7 @@ public abstract class ComponentTester extends Service
         return Convert.strDurationToMillisec(testDuration);
     }
 
-    protected final void setTestDuration(String duration) {
+    protected final void setTestDuration(final String duration) {
         testDuration = duration;
     }
 

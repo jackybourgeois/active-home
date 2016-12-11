@@ -177,9 +177,8 @@ public abstract class Evaluator extends Service {
     }
 
     private void initExecutor() {
-        stpe = new ScheduledThreadPoolExecutor(1, r -> {
-            return new Thread(r, getFullId() + "-evaluation-pool");
-        });
+        stpe = new ScheduledThreadPoolExecutor(1,
+                r -> new Thread(r, getFullId() + "-evaluation-pool"));
     }
 
     public final String getDefaultHorizon() {

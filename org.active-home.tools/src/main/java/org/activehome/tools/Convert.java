@@ -32,6 +32,8 @@ package org.activehome.tools;
  */
 public final class Convert {
 
+
+
     /**
      * Utility class.
      */
@@ -55,10 +57,10 @@ public final class Convert {
     }
 
     /**
-     * Convert Watt into kiloWatt-hour
+     * Convert Watt into kiloWatt-hour.
      * @param power power in watt
      * @param duration duration in milliseconds
-     * @return
+     * @return value in kilowatt-hour
      */
     public static double watt2kWh(final double power, final long duration) {
         return (power / 1000.) * (duration / 3600000.);

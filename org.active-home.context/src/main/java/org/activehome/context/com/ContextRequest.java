@@ -135,8 +135,8 @@ public class ContextRequest {
         JsonObject json = new JsonObject();
         json.add("type", ContextRequest.class.getName());
         JsonArray array = new JsonArray();
-        for (int i = 0; i < metrics.length; i++) {
-            array.add(metrics[i]);
+        for (String metric : metrics) {
+            array.add(metric);
         }
         json.add("metrics", array);
         json.add("discrete", discrete);

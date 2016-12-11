@@ -43,7 +43,8 @@ public final class CurrencyConverter {
     private CurrencyConverter() {
     }
 
-    public static double checkCurrencyRate(Currency from, Currency to) {
+    public static double checkCurrencyRate(final Currency from,
+                                           final Currency to) {
         try {
             URL url = new URL("http://rate-exchange.appspot.com/currency?from=" + from.name() + "&to=" + to.name());
             BufferedReader br = new BufferedReader(new InputStreamReader(url.openConnection().getInputStream()));
@@ -55,6 +56,17 @@ public final class CurrencyConverter {
     }
 
     enum Currency {
-        USD, EUR, GBP
+        /**
+         * US dollar
+         */
+        USD,
+        /**
+         * Euro
+         */
+        EUR,
+        /**
+         * British pound
+         */
+        GBP
     }
 }
