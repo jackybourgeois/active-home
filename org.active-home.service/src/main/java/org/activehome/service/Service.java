@@ -52,6 +52,13 @@ import java.util.UUID;
 /**
  * A Service handle Requests and provide Responses.
  *
+ * Ports:
+ * - pushResponse (out)
+ * - pushRequest (out)
+ * - pushNotif (out)
+ * - getRequest (in)
+ * - getResponse (in)
+ *
  * @author Jacky Bourgeois
  */
 @ComponentType(version = 1, description = "A Service handle "
@@ -59,7 +66,10 @@ import java.util.UUID;
 public abstract class Service extends TimeControlled implements ModelListener {
 
     /**
-     * The necessary bindings.
+     * The necessary bindings used by the {@code Linker} to connect:
+     * - to all {@code Context} getNotif, getRequest and getResponse
+     * - to all {@code API}
+     * - to all {@code User} pushRequest and getResponse.
      */
     @Param(defaultValue = "pushNotif>Context.getNotif,"
             + "pushRequest>API.getRequest,"
