@@ -54,6 +54,9 @@ import java.util.UUID;
         + "the physical user and the system.")
 public class User extends TimeControlled {
 
+    /**
+     * Where to find the sources (for the Active Home store).
+     */
     @Param(defaultValue = "/active-home/tree/master/org.active-home.user")
     private String src;
 

@@ -28,6 +28,7 @@ package org.activehome.context.helper;
 import org.activehome.context.data.Device;
 import org.kevoree.api.ModelService;
 import org.kevoree.api.handler.UUIDModel;
+import org.kevoree.*;
 import org.kevoree.factory.DefaultKevoreeFactory;
 import org.kevoree.factory.KevoreeFactory;
 import org.kevoree.api.handler.UUIDModel;
